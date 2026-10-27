@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Ti-kozé : icône d'écran d'accueil. Fond plein bord à bord (le téléphone arrondit lui-même),
+       bulle hibiscus 70 % du côté, rayons 22/22/22/7 % de la bulle, pointe en bas à gauche,
+       « é » dessiné en tracés (aucune police), encre #1B1411, haut ≈ 45 % du côté. -->
+  <rect width="512" height="512" fill="#FFF7EC"/>
+  <path d="M156 77H356A79 79 0 0 1 435 156V356A79 79 0 0 1 356 435H102A25 25 0 0 1 77 410V156A79 79 0 0 1 156 77Z" fill="#F0476B"/>
+  <g fill="none" stroke="#1B1411" stroke-width="32" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M200 300H312A56 56 0 1 0 295.6 339.6"/>
+    <path d="M252 198 280 156"/>
+  </g>
+</svg>

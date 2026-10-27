@@ -1,0 +1,1746 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Apprendre le créole martiniquais en jouant, avec Mamie et Papi."><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Ti-kozé"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="icon" href="icon-192.png" sizes="192x192"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#FFF7EC" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#16120F" media="(prefers-color-scheme: dark)"><title>Ti-kozé</title><style>:root{color-scheme:light}body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   PALÉ KRÉYÒL — tokens, composants et animations repris À LA LETTRE de la
+   maquette de Léa (maquette.html). Seul le bloc « ADAPTATION PLEIN ÉCRAN »
+   en fin de feuille est propre au jeu : il fait passer l'écran de 375×760
+   dans un cadre de téléphone à la fenêtre réelle.
+   ========================================================================== */
+:root{
+  --bg:#FFF7EC; --surface:#FFFFFF; --surface-2:#FFEFD9; --line:#F0DFC8;
+  --ink:#221A16; --ink-2:#5E5048; --on-fill:#1B1411;
+  /* Aplats vifs : identiques en clair et en sombre */
+  --c-lagon:#12B5A9; --c-mango:#FFB627; --c-flamboyant:#FF6B35; --c-ciel:#3BA7F5;
+  --c-hibiscus:#F0476B; --c-bougain:#B07CF0; --c-canne:#7CC64B; --c-ananas:#FFD93D; --c-goyave:#FF8AA0;
+  /* Ombres pleines des boutons 3D */
+  --d-lagon:#0B7F77; --d-mango:#C98500; --d-hibiscus:#B8264A; --d-neutral:#E3CFB3;
+  /* Texte coloré sur le fond */
+  --t-lagon:#0B6E67; --t-hibiscus:#B0173F; --t-mango:#8A5A00;
+  /* États de jeu */
+  --ok:#22B573; --ok-soft:#DDF6E8; --ok-text:#0D6B3F; --d-ok:#13804F;
+  --ko:#F2545B; --ko-soft:#FFE3E2; --ko-text:#A3161E; --d-ko:#B42A30;
+  /* Plateau d'illustration : constant dans les deux thèmes */
+  --plate:#FFF1DC;
+  --font-display:'Fredoka','Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-text:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --fs-xs:13px; --fs-sm:15px; --fs-base:17px; --fs-lg:20px; --fs-xl:24px; --fs-2xl:30px; --fs-3xl:40px;
+  --r-sm:10px; --r-md:16px; --r-lg:24px; --r-xl:32px; --r-pill:999px;
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-7:32px; --s-8:40px;
+  --sh-1:0 1px 2px rgba(34,26,22,.08),0 2px 8px rgba(34,26,22,.06);
+  --sh-2:0 8px 24px rgba(34,26,22,.14);
+  --press:4px;
+  --dur-fast:150ms; --dur-mid:260ms; --dur-flip:480ms; --dur-slow:800ms;
+  --ease-out:cubic-bezier(.2,.8,.2,1); --ease-spring:cubic-bezier(.34,1.56,.64,1); --ease-io:cubic-bezier(.45,0,.55,1);
+  --frame:#2B2420;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#16120F; --surface:#221C18; --surface-2:#2E2620; --line:#3E342C; --ink:#FBF3E8; --ink-2:#C9BBAA;
+  --d-neutral:#120E0B; --t-lagon:#5FE0D5; --t-hibiscus:#FF8FA6; --t-mango:#FFC95C;
+  --ok-soft:#123222; --ok-text:#6BE3A0; --ko-soft:#3A1618; --ko-text:#FF9A9E;
+  --sh-1:0 1px 2px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.3); --sh-2:0 8px 24px rgba(0,0,0,.5);
+  --frame:#0A0807; color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#16120F; --surface:#221C18; --surface-2:#2E2620; --line:#3E342C; --ink:#FBF3E8; --ink-2:#C9BBAA;
+  --d-neutral:#120E0B; --t-lagon:#5FE0D5; --t-hibiscus:#FF8FA6; --t-mango:#FFC95C;
+  --ok-soft:#123222; --ok-text:#6BE3A0; --ko-soft:#3A1618; --ko-text:#FF9A9E;
+  --sh-1:0 1px 2px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.3); --sh-2:0 8px 24px rgba(0,0,0,.5);
+  --frame:#0A0807; color-scheme:dark;
+}
+*{box-sizing:border-box}
+/* Plateau d'illustration (maquette) */
+.plate{background:var(--plate);border-radius:var(--r-lg);display:grid;place-items:center}
+.plate svg{width:80%;height:80%}
+/* ===================== Écran de jeu ===================== */
+.screen{position:relative;width:375px;max-width:100%;height:760px;border-radius:42px;overflow:hidden;
+  background:var(--bg);color:var(--ink);display:flex;flex-direction:column;font-family:var(--font-text)}
+.statusbar{height:34px;flex:none}
+.scr-body{flex:1;overflow:hidden;padding:0 var(--s-5);display:flex;flex-direction:column;min-height:0}
+.scr-foot{flex:none;padding:var(--s-4) var(--s-5) var(--s-6)}
+.ic{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ic.fill{fill:currentColor;stroke:none}
+.chips{display:flex;gap:var(--s-2);align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:var(--r-pill);
+  background:var(--surface);box-shadow:var(--sh-1);font:800 var(--fs-sm) var(--font-text);color:var(--ink);flex:none}
+.chip .ic{width:20px;height:20px}
+.chip.flame .ic{color:var(--c-flamboyant)}
+.chip.xp .ic{color:var(--c-ciel)}
+/* Boutons 3D */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border:0;border-radius:var(--r-md);
+  font:700 var(--fs-lg) var(--font-display);letter-spacing:.2px;cursor:pointer;color:var(--on-fill);background:var(--c-lagon);
+  box-shadow:0 var(--press) 0 var(--d-lagon);transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast) var(--ease-out)}
+.btn:active{transform:translateY(var(--press));box-shadow:0 0 0 var(--d-lagon)}
+.btn.ghost{background:var(--surface);color:var(--ink);box-shadow:0 var(--press) 0 var(--d-neutral);border:2px solid var(--line)}
+.btn:focus-visible,.opt:focus-visible,.tile:focus-visible,.card3d:focus-visible,.pick:focus-visible{outline:3px solid var(--c-ciel);outline-offset:3px}
+/* En-tête des modes */
+.game-head{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2) var(--s-5) var(--s-2);flex:none}
+.icon-btn{width:44px;height:44px;border-radius:var(--r-pill);border:0;background:none;color:var(--ink-2);display:grid;place-items:center;cursor:pointer;flex:none}
+.prog{flex:1;height:16px;border-radius:var(--r-pill);background:var(--surface-2);overflow:hidden;position:relative}
+.prog i{position:absolute;inset:0 auto 0 0;border-radius:var(--r-pill);background:var(--c-canne);transition:width 400ms var(--ease-out)}
+.prog i::after{content:"";position:absolute;left:8px;right:8px;top:4px;height:4px;border-radius:4px;background:rgba(255,255,255,.45)}
+.mode-tag{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font:800 var(--fs-xs) var(--font-text);letter-spacing:.6px;text-transform:uppercase;
+  padding:5px 10px;border-radius:var(--r-pill);color:var(--on-fill);flex:none}
+.mode-tag .ic{width:16px;height:16px}
+
+/* ===== Guide + bulle ===== */
+.say{display:flex;align-items:flex-end;gap:var(--s-2);margin:var(--s-2) 0 var(--s-3);flex:none}
+.say .guide{width:78px;flex:none}
+.bubble{position:relative;flex:1;min-width:0;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:10px 14px;margin-bottom:14px;
+  box-shadow:var(--sh-1);transform-origin:0 100%}
+.bubble::before{content:"";position:absolute;left:-9px;bottom:14px;width:14px;height:14px;background:var(--surface);border-left:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}
+.bubble .kr{display:block;font:700 var(--fs-lg) var(--font-display);line-height:1.2;color:var(--ink)}
+.bubble .frg{display:block;font:600 var(--fs-sm) var(--font-text);color:var(--ink-2);margin-top:2px}
+.bubble .q{display:block;font:700 var(--fs-lg) var(--font-display);line-height:1.25;color:var(--ink)}
+.bubble .kw{color:var(--t-hibiscus)}
+.bubble.pop{animation:bubblein 240ms var(--ease-spring)}
+.pn{font-weight:800;color:var(--ink)}
+
+/* Personnages — structure SVG : .g-halo + .g-body > (.g-head > .g-eyes ...) ; viewBox 0 0 140 160 */
+.guide{display:block;line-height:0}
+.g-svg{width:100%;height:auto;overflow:visible}
+.g-body{transform-origin:70px 160px;animation:breathe 3.2s var(--ease-io) infinite}
+.g-head{transform-origin:70px 110px}
+.g-eyes{transform-origin:70px 73px;animation:blink 4.2s linear infinite}
+.guide[data-who="m"] .g-eyes{animation-delay:-1.7s}
+.guide[data-who="m"] .g-body{animation-delay:-1.1s}
+.m-t{transform-origin:70px 96px}
+.g-hand{transform-origin:100px 136px}
+.ref-row{display:flex;flex-wrap:wrap;gap:var(--s-4);align-items:flex-end;margin-bottom:var(--s-4)}
+.ref-crop{width:150px;height:150px;border-radius:50%;background-image:url("../../console/public/img/avatars.jpg");background-size:768px 768px;background-color:#0E1626}
+.ref-cell{display:flex;flex-direction:column;align-items:center;gap:6px;font:700 var(--fs-xs) var(--font-text);color:var(--ink-2);text-align:center;max-width:170px}
+.ref-guide{width:150px;height:150px;border-radius:50%;background:#0E1626;display:grid;place-items:end center;overflow:hidden}
+.ref-guide .guide{width:132px}
+.guide .b-e,.guide .e-h,.guide .m-j,.guide .m-e,.guide .m-t,.guide .g-hand{display:none}
+.guide[data-expr="joy"] .e-o,.guide[data-expr="joy"] .m-n{display:none}
+.guide[data-expr="joy"] .e-h,.guide[data-expr="joy"] .m-j,.guide[data-expr="joy"] .g-hand{display:inline}
+.guide[data-expr="enc"] .b-n,.guide[data-expr="enc"] .m-n{display:none}
+.guide[data-expr="enc"] .b-e,.guide[data-expr="enc"] .m-e{display:inline}
+.guide.talking .m-n,.guide.talking .m-j,.guide.talking .m-e{display:none!important}
+.guide.talking .m-t{display:inline;animation:talk 140ms var(--ease-io) 6 alternate}
+.guide.do-joy .g-body{animation:jump 620ms var(--ease-out)}
+.guide.do-joy .g-hand{animation:wave 280ms var(--ease-io) 2 alternate}
+.guide.do-nod .g-head{animation:nod 760ms var(--ease-io)}
+.guide.do-dance .g-body{animation:dance 1400ms var(--ease-io) 2}
+.guide.do-dance .g-hand{display:inline;animation:wave 350ms var(--ease-io) 8 alternate}
+
+/* ===== Accueil ===== */
+.home-top{display:flex;align-items:center;justify-content:space-between;padding:var(--s-2) var(--s-5) var(--s-2);flex:none;gap:var(--s-2)}
+.logo{font:700 var(--fs-xl) var(--font-display);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.logo .bubble-ic{width:34px;height:34px;border-radius:12px 12px 12px 4px;background:var(--c-hibiscus);color:var(--on-fill);display:grid;place-items:center;font:700 20px var(--font-display)}
+.logo .acc{color:var(--t-hibiscus)}
+.daily{border-radius:var(--r-lg);padding:var(--s-3) var(--s-4);color:var(--on-fill);background:var(--c-mango);display:flex;gap:var(--s-3);align-items:center;flex:none}
+.ring{width:56px;height:56px;flex:none;position:relative}
+.ring svg{width:56px;height:56px;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:800 var(--fs-xs) var(--font-text)}
+.daily h3{font-size:var(--fs-base)} .daily p{margin:0;font-size:var(--fs-xs);font-weight:700}
+.week{display:flex;gap:4px;margin-left:auto}
+.week i{width:14px;height:14px;border-radius:var(--r-pill);background:rgba(27,20,17,.18)}
+.week i.on{background:var(--on-fill)}
+.sec-title{font:700 var(--fs-lg) var(--font-display);margin:var(--s-3) 0 var(--s-2);display:flex;justify-content:space-between;align-items:baseline;flex:none}
+.sec-title small{font:700 var(--fs-xs) var(--font-text);color:var(--ink-2)}
+.path{list-style:none;margin:0;padding:0 0 0 4px;position:relative;overflow:hidden;flex:1;min-height:0}
+.path::before{content:"";position:absolute;left:35px;top:20px;bottom:0;width:6px;border-radius:3px;background:var(--surface-2)}
+.lvl{position:relative;display:flex;align-items:center;gap:var(--s-3);padding:5px 0}
+.node{width:64px;height:64px;border-radius:22px;flex:none;display:grid;place-items:center;position:relative;z-index:1;box-shadow:0 5px 0 rgba(0,0,0,.18)}
+.node svg.vg{width:50px;height:50px}
+.node .num{position:absolute;top:-6px;left:-6px;width:24px;height:24px;border-radius:var(--r-pill);background:var(--ink);color:var(--bg);font:800 12px var(--font-text);display:grid;place-items:center}
+.node .lock{position:absolute;right:-6px;bottom:-6px;width:26px;height:26px;border-radius:var(--r-pill);background:var(--ink);color:var(--bg);display:grid;place-items:center}
+.node .lock .ic{width:15px;height:15px;stroke-width:2.6}
+.lvl.locked .node{background:var(--surface-2)!important;box-shadow:0 5px 0 var(--d-neutral)}
+.lvl.locked svg.vg{filter:grayscale(1);opacity:.5}
+.lvl.current .node{animation:pulse 2s var(--ease-out) infinite}
+.lvl-card{flex:1;min-width:0;background:var(--surface);border-radius:var(--r-md);padding:8px 12px;box-shadow:var(--sh-1)}
+.lvl.current .lvl-card{border:2px solid var(--c-lagon)}
+.lvl-card b{display:block;font:700 var(--fs-base) var(--font-display);line-height:1.2}
+.lvl-meta{display:flex;align-items:center;gap:6px;font:700 var(--fs-xs) var(--font-text);color:var(--ink-2);margin-top:3px}
+.stars{display:inline-flex;gap:1px}
+.stars .ic{width:16px;height:16px}
+.st-on{color:var(--c-mango)} .st-off{color:var(--line)}
+.lvl.current .lvl-meta{color:var(--t-lagon)}
+.tabbar{flex:none;display:flex;border-top:1px solid var(--line);background:var(--surface);padding:8px 12px 18px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font:800 var(--fs-xs) var(--font-text);color:var(--ink-2);padding:6px;border-radius:var(--r-md)}
+.tab.on{color:var(--t-lagon);background:var(--surface-2)}
+
+/* ===== Premier lancement ===== */
+.onb h2{font-size:var(--fs-2xl);text-align:center;margin:var(--s-2) 0 var(--s-1)}
+.onb .sub{text-align:center;color:var(--ink-2);font-weight:600;font-size:var(--fs-sm);margin:0 0 var(--s-3)}
+.field-l{font:800 var(--fs-xs) var(--font-text);letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);margin:var(--s-3) 0 6px;display:block}
+.name-in{width:100%;min-height:54px;border:2px solid var(--line);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font:700 var(--fs-lg) var(--font-display);color:var(--ink)}
+.name-in:focus{outline:none;border-color:var(--c-lagon)}
+.seg2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2)}
+.pick{min-height:48px;border-radius:var(--r-md);border:2px solid var(--line);background:var(--surface);color:var(--ink);font:700 var(--fs-base) var(--font-text);cursor:pointer;
+  box-shadow:0 var(--press) 0 var(--d-neutral);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px}
+.pick[aria-pressed="true"]{border-color:var(--c-lagon);border-width:3px;background:var(--surface-2)}
+.pick .guide{width:72px}
+.pick .nm{font:700 var(--fs-base) var(--font-display)}
+
+/* ===== Cartes ===== */
+.card-stage{perspective:1100px;flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.card3d{position:relative;height:100%;max-height:420px;min-height:300px;border:0;padding:0;background:none;cursor:pointer;transform-style:preserve-3d;
+  transition:transform var(--dur-flip) var(--ease-out);width:100%;font:inherit;color:inherit}
+.card3d.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--r-xl);display:flex;flex-direction:column;
+  padding:var(--s-5);text-align:left;box-shadow:var(--sh-2)}
+.face.front{background:var(--c-ciel);color:var(--on-fill);align-items:center;justify-content:center;text-align:center}
+.face.front .plate{width:150px;height:150px}
+.face.back{background:var(--surface);color:var(--ink);transform:rotateY(180deg);border:3px solid var(--c-ciel)}
+.face .lang{font:800 var(--fs-xs) var(--font-text);letter-spacing:.8px;text-transform:uppercase}
+.face .word{font:700 var(--fs-3xl) var(--font-display);line-height:1.1;margin:6px 0}
+.face .hint{display:flex;align-items:center;gap:6px;font:700 var(--fs-sm) var(--font-text);margin-top:var(--s-3)}
+.face.back .lang{color:var(--ink-2)}
+.back-top{display:flex;gap:var(--s-3);align-items:center}
+.back-top .plate{width:76px;height:76px;flex:none}
+.ex{background:var(--surface-2);border-radius:var(--r-md);padding:var(--s-3);font-size:var(--fs-sm);margin-top:var(--s-3)}
+.ex b{display:block;color:var(--ink);font-size:var(--fs-base)}
+.ex span{color:var(--ink-2)}
+.swipe-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+
+/* ===== QCM / options ===== */
+.q-img{display:flex;justify-content:center;flex:none;margin-bottom:var(--s-3)}
+.q-img .plate{width:124px;height:124px}
+.opts{display:grid;gap:var(--s-3)}
+.opts.two{grid-template-columns:1fr 1fr}
+.opt{position:relative;display:flex;align-items:center;gap:var(--s-3);min-height:56px;padding:var(--s-2) var(--s-4);border-radius:var(--r-md);
+  background:var(--surface);border:2px solid var(--line);box-shadow:0 var(--press) 0 var(--d-neutral);font:700 var(--fs-lg) var(--font-text);color:var(--ink);
+  text-align:left;cursor:pointer;transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast),background var(--dur-mid),border-color var(--dur-mid),opacity var(--dur-mid)}
+.opt:active{transform:translateY(var(--press));box-shadow:0 0 0 var(--d-neutral)}
+.opt .k{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font:800 var(--fs-sm) var(--font-text);background:var(--surface-2);color:var(--ink-2)}
+.opt .st{margin-left:auto;display:none}
+.opt.is-ok{background:var(--ok-soft);border-color:var(--ok);box-shadow:0 var(--press) 0 var(--ok);color:var(--ok-text)}
+.opt.is-ok .k{background:var(--ok);color:var(--on-fill)}
+.opt.is-ok .st.ok{display:block}
+.opt.is-ko{background:var(--ko-soft);border-color:var(--ko);box-shadow:0 var(--press) 0 var(--ko);color:var(--ko-text)}
+.opt.is-ko .k{background:var(--ko);color:var(--on-fill)}
+.opt.is-ko .st.ko{display:block}
+.opt.is-dim{opacity:.45}
+.opt small{font:600 13px var(--font-text);color:var(--ink-2)}
+/* Panneau de retour */
+.feedback{position:absolute;left:0;right:0;bottom:0;padding:var(--s-5) var(--s-5) var(--s-6);border-radius:var(--r-lg) var(--r-lg) 0 0;
+  transform:translateY(105%);transition:transform 280ms var(--ease-out);z-index:5}
+.feedback.show{transform:none}
+.feedback.ok{background:var(--ok-soft);color:var(--ok-text)}
+.feedback.ko{background:var(--ko-soft);color:var(--ko-text)}
+.fb-title{display:flex;align-items:center;gap:10px;font:700 var(--fs-xl) var(--font-display);margin-bottom:4px}
+.fb-badge{width:40px;height:40px;border-radius:var(--r-pill);display:grid;place-items:center;color:var(--on-fill);flex:none}
+.feedback.ok .fb-badge{background:var(--ok)} .feedback.ko .fb-badge{background:var(--ko)}
+.fb-text{font-size:var(--fs-base);margin:0 0 var(--s-4);color:var(--ink)}
+.feedback.ok .btn{background:var(--ok);box-shadow:0 var(--press) 0 var(--d-ok)}
+.feedback.ko .btn{background:var(--ko);box-shadow:0 var(--press) 0 var(--d-ko)}
+.xp-fly{position:absolute;font:700 var(--fs-lg) var(--font-display);color:var(--t-lagon);pointer-events:none;animation:xpfly 700ms var(--ease-out) forwards;z-index:9}
+
+/* ===== Paires ===== */
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+.col{display:grid;gap:var(--s-2)}
+.col h4{margin:0;font:800 var(--fs-xs) var(--font-text);letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2)}
+.tile{min-height:54px;border-radius:var(--r-md);background:var(--surface);border:2px solid var(--line);box-shadow:0 var(--press) 0 var(--d-neutral);
+  font:700 var(--fs-base) var(--font-text);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;padding:6px;
+  transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast),background var(--dur-mid),opacity var(--dur-mid)}
+.tile.sel{border-color:var(--c-ciel);border-width:3px;transform:translateY(-2px);box-shadow:0 6px 0 #1F7FC4}
+.tile.matched{opacity:.55;cursor:default;box-shadow:none;transform:none}
+.tile .ic{width:18px;height:18px}
+.tile.m1{background:#C8F2EE;border-color:var(--c-lagon);color:#0B4F4A}
+.tile.m2{background:#FFE7B3;border-color:var(--c-mango);color:#5C3D00}
+.tile.m3{background:#FFD3DD;border-color:var(--c-hibiscus);color:#7A1030}
+.tile.m4{background:#E7D9FB;border-color:var(--c-bougain);color:#4A2380}
+.tile.m5{background:#D3ECFD;border-color:var(--c-ciel);color:#0D4A78}
+.tile.wrong{border-color:var(--ko);background:var(--ko-soft);color:var(--ko-text);animation:shake 320ms var(--ease-out)}
+
+/* ===== Faux-ami ===== */
+.fa-card{border-radius:var(--r-xl);background:var(--c-bougain);color:var(--on-fill);padding:var(--s-5);text-align:center;box-shadow:var(--sh-2);flex:none}
+.fa-card .word{display:block;font:700 var(--fs-2xl) var(--font-display);line-height:1.1}
+.fa-card .eq{margin:var(--s-2) 0;font:800 var(--fs-sm) var(--font-text)}
+.fa-card .fr{display:inline-block;background:rgba(255,255,255,.55);border-radius:var(--r-md);padding:6px 14px;font:700 var(--fs-xl) var(--font-display)}
+.vf{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3);margin-top:var(--s-4)}
+.vf .opt{flex-direction:column;justify-content:center;text-align:center;min-height:92px;gap:2px;font-size:var(--fs-base)}
+.vf .opt .ic{width:28px;height:28px}
+
+/* ===== Proverbe ===== */
+.prov{position:relative;background:var(--surface);border-radius:var(--r-xl);padding:var(--s-6) var(--s-5) var(--s-4);box-shadow:var(--sh-1);border-left:8px solid var(--c-flamboyant);margin-top:var(--s-3);flex:none}
+.prov .qm{position:absolute;top:-18px;left:16px;width:40px;height:40px;border-radius:var(--r-pill);background:var(--c-flamboyant);color:var(--on-fill);display:grid;place-items:center}
+.prov p{margin:0;font:600 var(--fs-xl) var(--font-display);line-height:1.45}
+.gap{display:inline-block;min-width:96px;border-bottom:4px dashed var(--c-flamboyant);margin:0 4px;text-align:center;color:var(--t-hibiscus)}
+.prov small{display:block;margin-top:var(--s-2);color:var(--ink-2);font-size:var(--fs-sm)}
+
+/* ===== Fin de niveau ===== */
+.end{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;gap:var(--s-2);position:relative}
+.burst{position:absolute;top:0;left:50%;width:340px;height:340px;margin-left:-170px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,182,39,.35) 0,rgba(255,182,39,0) 65%);z-index:0}
+.big-stars{display:flex;gap:6px;align-items:flex-end;position:relative;z-index:1}
+.big-stars .ic{width:56px;height:56px;filter:drop-shadow(0 4px 0 rgba(0,0,0,.15))}
+.big-stars .mid .ic{width:74px;height:74px}
+.big-stars span{display:block}
+.big-stars span.in{animation:starin 420ms var(--ease-spring) both}
+.big-stars span:nth-child(2).in{animation-delay:250ms} .big-stars span:nth-child(3).in{animation-delay:500ms}
+.end .guide{width:132px;position:relative;z-index:1}
+.end h2{font-size:var(--fs-2xl);position:relative;z-index:1}
+.end .bubble{flex:none;width:100%;margin:0;text-align:left}
+.end .bubble::before{left:50%;top:-9px;bottom:auto;margin-left:-7px;transform:rotate(135deg)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-2);width:100%}
+.stat{border-radius:var(--r-md);padding:var(--s-2) 6px;color:var(--on-fill);display:flex;flex-direction:column;align-items:center;gap:0}
+.stat small{font:800 11px var(--font-text);letter-spacing:.5px;text-transform:uppercase}
+.stat b{font:700 var(--fs-xl) var(--font-display)}
+.stat .ic{width:20px;height:20px}
+
+/* ===== Lexique ===== */
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--line);border-radius:var(--r-md);padding:0 12px;min-height:54px;flex:none}
+.search:focus-within{border-color:var(--c-lagon)}
+.search input{flex:1;min-width:0;border:0;background:none;font:700 var(--fs-base) var(--font-text);color:var(--ink);outline:none}
+.search .ic{color:var(--ink-2)}
+.dir{display:flex;margin:var(--s-3) 0;background:var(--surface-2);border-radius:var(--r-pill);padding:4px;flex:none}
+.dir button{flex:1;border:0;background:none;border-radius:var(--r-pill);min-height:40px;font:800 var(--fs-sm) var(--font-text);color:var(--ink-2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.dir button[aria-pressed="true"]{background:var(--c-lagon);color:var(--on-fill)}
+.dir .ic{width:16px;height:16px}
+.dir button{gap:3px;padding:0 4px}
+@media (max-width:420px){.home-top .logo .bubble-ic{display:none}}
+.count{font:700 var(--fs-xs) var(--font-text);color:var(--ink-2);margin:0 0 var(--s-2)}
+.results{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-2);overflow:hidden}
+.res{display:flex;align-items:center;gap:var(--s-3);background:var(--surface);border-radius:var(--r-md);padding:10px 12px;box-shadow:var(--sh-1)}
+.res .dot{width:10px;height:40px;border-radius:5px;flex:none}
+.res .plate{width:44px;height:44px;border-radius:12px;flex:none}
+.res div{flex:1;min-width:0}
+.res b{display:block;font:700 var(--fs-lg) var(--font-display)}
+.res span{color:var(--ink-2);font-size:var(--fs-sm);font-weight:600}
+.res mark{background:var(--c-mango);color:var(--on-fill);border-radius:4px;padding:0 2px}
+.res .lv{font:800 11px var(--font-text);color:var(--ink-2);white-space:nowrap}
+
+.confetti{position:absolute;width:10px;height:14px;border-radius:3px;pointer-events:none;z-index:8;animation:confetti 900ms var(--ease-out) forwards}
+
+/* ===== Animations ===== */
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes glow{0%,100%{box-shadow:0 var(--press) 0 var(--ok),0 0 0 0 rgba(34,181,115,.5)}50%{box-shadow:0 var(--press) 0 var(--ok),0 0 0 10px rgba(34,181,115,0)}}
+@keyframes pulse{0%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 0 rgba(255,107,53,.55)}70%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 16px rgba(255,107,53,0)}100%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 0 rgba(255,107,53,0)}}
+@keyframes starin{0%{transform:scale(0) rotate(-25deg);opacity:0}70%{transform:scale(1.25) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@keyframes xpfly{0%{transform:translateY(0) scale(.8);opacity:0}25%{opacity:1;transform:translateY(-10px) scale(1.1)}100%{transform:translateY(-60px) scale(1);opacity:0}}
+@keyframes confetti{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0}}
+@keyframes bubblein{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+/* Personnages */
+@keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1.5px) scale(1.015)}}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes talk{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+@keyframes jump{0%{transform:translateY(0) scaleY(1)}20%{transform:translateY(1.5px) scaleY(.97)}55%{transform:translateY(-8px) scaleY(1.02)}80%{transform:translateY(0) scaleY(.99)}100%{transform:translateY(0) scaleY(1)}}
+@keyframes wave{from{transform:rotate(0)}to{transform:rotate(-16deg)}}
+@keyframes nod{0%{transform:none}25%{transform:translateY(3px) rotate(4deg)}50%{transform:translateY(0) rotate(4deg)}75%{transform:translateY(3px) rotate(4deg)}100%{transform:none}}
+@keyframes dance{0%{transform:none}25%{transform:translateY(-3px) rotate(-5deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-3px) rotate(5deg)}100%{transform:none}}
+.anim-pop{animation:pop var(--dur-mid) var(--ease-spring)}
+.anim-shake{animation:shake 320ms var(--ease-out)}
+.anim-glow{animation:glow 700ms var(--ease-out) 2}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:150ms!important}
+  .card3d{transition:opacity 150ms!important}
+  .confetti,.xp-fly{display:none}
+  .guide .g-svg *{animation:none!important}
+}
+
+/* ===================== ADAPTATION PLEIN ÉCRAN (jeu) ===================== */
+html{-webkit-text-size-adjust:100%}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-text);font-size:var(--fs-base);line-height:1.45;
+  padding-inline:0;overflow-x:hidden}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0}
+button{-webkit-tap-highlight-color:transparent}
+/* L'écran occupe toute la fenêtre ; la marge d'écran de 20 px (charte) est portée par chaque bloc */
+.screen{width:100%;max-width:none;margin:0;height:100vh;height:100dvh;border-radius:0}
+.statusbar{height:max(10px,env(safe-area-inset-top,0px))}
+.scr-body,.game-head,.home-top,.scr-foot,.tabbar,.feedback{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.scr-body{overflow:hidden}
+.scr-foot{padding-bottom:calc(var(--s-6) + env(safe-area-inset-bottom,0px))}
+.tabbar{padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+.feedback{left:0;right:0;padding-bottom:calc(var(--s-6) + env(safe-area-inset-bottom,0px))}
+/* Le parcours et les résultats défilent dans leur propre zone */
+.path,.results{flex:1;min-height:0;overflow-y:auto}
+.path{margin:0 -20px;padding:12px 20px 24px 24px}
+.path::before{left:55px;top:32px}
+.results{margin:0 -20px;padding:4px 20px 16px}
+.say{flex:none}
+.bubble.hide{visibility:hidden}
+/* Éléments interactifs que la maquette dessinait en <span>/<li> */
+button.tab{border:0;background:none;cursor:pointer;min-height:44px}
+button.tab.on{background:var(--surface-2)}
+.lvl[role="button"]{cursor:pointer;border-radius:var(--r-md)}
+.lvl[aria-disabled="true"]{cursor:default}
+.lvl:focus-visible,.tab:focus-visible,.icon-btn:focus-visible,.dir button:focus-visible,.name-in:focus-visible{outline:3px solid var(--c-ciel);outline-offset:3px}
+.btn:disabled{opacity:1;background:var(--surface-2);color:var(--ink-2);box-shadow:0 var(--press) 0 var(--d-neutral);cursor:not-allowed}
+.btn:disabled:active{transform:none;box-shadow:0 var(--press) 0 var(--d-neutral)}
+svg.ic.fill.st-off{fill:none;stroke:var(--ink-2);stroke-width:1.8}
+.daily h3{white-space:nowrap}
+.week{gap:3px}
+.week i{width:10px;height:10px}
+.lvl.unlocking svg.vg{transition:filter 400ms var(--ease-out),opacity 400ms var(--ease-out)}
+.card-stage{touch-action:pan-y}
+.face.back{overflow-y:auto}
+.face .word.long{font-size:var(--fs-2xl)}
+.res div span{display:block}
+.opt .tx{min-width:0}
+.vf .opt .st{margin:0 auto}
+.prov p .gap{min-width:72px}
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Dégradés des guides (volume 3D doux, lumière en haut à gauche) -->
+    <radialGradient id="gSkinF" cx=".4" cy=".32" r=".78"><stop offset="0" stop-color="#C58A63"/><stop offset=".55" stop-color="#93603F"/><stop offset="1" stop-color="#6A3F27"/></radialGradient>
+    <radialGradient id="gSkinM" cx=".4" cy=".32" r=".78"><stop offset="0" stop-color="#AD7552"/><stop offset=".55" stop-color="#7A4E35"/><stop offset="1" stop-color="#523220"/></radialGradient>
+    <radialGradient id="gHairF" cx=".38" cy=".28" r=".8"><stop offset="0" stop-color="#6A4330"/><stop offset=".5" stop-color="#2E1C13"/><stop offset="1" stop-color="#140C08"/></radialGradient>
+    <radialGradient id="gHairM" cx=".38" cy=".25" r=".85"><stop offset="0" stop-color="#5A3B2A"/><stop offset=".5" stop-color="#22160F"/><stop offset="1" stop-color="#0E0906"/></radialGradient>
+    <radialGradient id="gIrisF" cx=".45" cy=".38" r=".62"><stop offset="0" stop-color="#D08A45"/><stop offset=".55" stop-color="#7E4116"/><stop offset="1" stop-color="#3A1A08"/></radialGradient>
+    <radialGradient id="gIrisM" cx=".45" cy=".38" r=".62"><stop offset="0" stop-color="#B9944A"/><stop offset=".55" stop-color="#6E4C1A"/><stop offset="1" stop-color="#2E1E08"/></radialGradient>
+    <radialGradient id="gSclera" cx=".5" cy=".35" r=".7"><stop offset=".6" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E4D8CE"/></radialGradient>
+    <radialGradient id="gBlush"><stop offset="0" stop-color="#FF6F8E" stop-opacity=".6"/><stop offset="1" stop-color="#FF6F8E" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gTopF" cx=".4" cy=".15" r=".9"><stop offset="0" stop-color="#FFDC8F"/><stop offset=".5" stop-color="#FFB627"/><stop offset="1" stop-color="#D08300"/></radialGradient>
+    <radialGradient id="gShirtM" cx=".4" cy=".15" r=".9"><stop offset="0" stop-color="#7AE6DD"/><stop offset=".5" stop-color="#12B5A9"/><stop offset="1" stop-color="#087068"/></radialGradient>
+    <linearGradient id="gBand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8DA5"/><stop offset=".5" stop-color="#F0476B"/><stop offset="1" stop-color="#B9234A"/></linearGradient>
+    <radialGradient id="gGold" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFE7A3"/><stop offset=".6" stop-color="#FFB627"/><stop offset="1" stop-color="#B87800"/></radialGradient>
+    <radialGradient id="gHaloF"><stop offset=".6" stop-color="#F0476B" stop-opacity="0"/><stop offset=".82" stop-color="#F0476B" stop-opacity=".42"/><stop offset=".9" stop-color="#F0476B" stop-opacity=".22"/><stop offset="1" stop-color="#F0476B" stop-opacity="0"/></radialGradient>
+    <!-- Madras : carreaux mangue / flamboyant / hibiscus / vert, fil crème ; ombre de drapé par-dessus -->
+    <pattern id="pMadras" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(-12)">
+      <rect width="18" height="18" fill="#FFB627"/>
+      <rect width="18" height="5" fill="#FF6B35" opacity=".9"/><rect width="5" height="18" fill="#F0476B" opacity=".8"/>
+      <rect y="10" width="18" height="2" fill="#2E9E4F" opacity=".85"/><rect x="10" width="2" height="18" fill="#2E9E4F" opacity=".75"/>
+      <rect y="14" width="18" height="1" fill="#FFF7EC" opacity=".85"/><rect x="14" width="1" height="18" fill="#FFF7EC" opacity=".85"/>
+    </pattern>
+    <radialGradient id="gDrape" cx=".35" cy=".3" r=".85"><stop offset=".35" stop-color="#1B1411" stop-opacity="0"/><stop offset="1" stop-color="#1B1411" stop-opacity=".38"/></radialGradient>
+    <radialGradient id="gHairGrey" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#E2DCD4"/><stop offset="1" stop-color="#A9A097"/></radialGradient>
+    <radialGradient id="gBlouse" cx=".4" cy=".15" r=".9"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#FCEBEF"/><stop offset="1" stop-color="#E7B9C4"/></radialGradient>
+    <radialGradient id="gShirtW" cx=".4" cy=".15" r=".9"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#F3EBDD"/><stop offset="1" stop-color="#CDBB9D"/></radialGradient>
+    <radialGradient id="gHaloM"><stop offset=".6" stop-color="#12B5A9" stop-opacity="0"/><stop offset=".82" stop-color="#12B5A9" stop-opacity=".42"/><stop offset=".9" stop-color="#12B5A9" stop-opacity=".22"/><stop offset="1" stop-color="#12B5A9" stop-opacity="0"/></radialGradient>
+    <!-- Icônes d'interface (trait) -->
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9z"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3.5 5 5.5 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5.2.2 1.6.9 2.7 2 3.2C11 8 11 5 12 2z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-4-4M20 16H6l4 4"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-flip" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-quote" viewBox="0 0 24 24"><path d="M5 17c0-4 1-7 5-9M14 17c0-4 1-7 5-9"/><circle cx="6.5" cy="15.5" r="2"/><circle cx="15.5" cy="15.5" r="2"/></symbol>
+
+    <!-- VIGNETTES DE NIVEAU — viewBox 0 0 64 64, trait encre #1B1411 2,5 px, posées sur l'aplat du niveau -->
+    <symbol id="v-salut" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M9 10h28a6 6 0 0 1 6 6v12a6 6 0 0 1-6 6H21l-8 7v-7H9a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6z" fill="#FFF7EC"/>
+      <path d="M30 28h25a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6h-2v7l-8-7H30a6 6 0 0 1-6-6V34a6 6 0 0 1 6-6z" fill="#FFB627"/></g>
+      <circle cx="14" cy="22" r="2.6" fill="#1B1411"/><circle cx="23" cy="22" r="2.6" fill="#1B1411"/><circle cx="32" cy="22" r="2.6" fill="#1B1411"/></symbol>
+    <symbol id="v-case" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <rect x="14" y="29" width="36" height="25" fill="#FFF7EC"/><path d="M7 31 32 11l25 20z" fill="#F0476B"/>
+      <rect x="28" y="38" width="9" height="16" fill="#12B5A9"/><rect x="18" y="35" width="7" height="7" fill="#3BA7F5"/><rect x="41" y="35" width="7" height="7" fill="#3BA7F5"/>
+      <path d="M6 55h52"/></g></symbol>
+    <symbol id="v-fruits" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M16 28C26 14 52 20 50 42C48 57 26 60 18 50C11 42 11 34 16 28Z" fill="#FFB627"/>
+      <path d="M38 26C45 28 48 34 48 40C42 38 39 32 38 26Z" fill="#FF6B35" stroke="none"/>
+      <path d="M30 22C34 12 47 9 54 13C48 20 39 22 30 22Z" fill="#12B5A9"/><path d="M28 24C29 20 31 18 33 17" fill="none"/></g></symbol>
+    <symbol id="v-marche" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M17 31C17 12 47 12 47 31" fill="none"/>
+      <circle cx="22" cy="28" r="7" fill="#FFB627"/><circle cx="34" cy="25" r="7" fill="#F0476B"/><circle cx="45" cy="28" r="6" fill="#7CC64B"/>
+      <path d="M9 31h46l-6 23H15z" fill="#FFF7EC"/><path d="M13 39h38M15 47h34" fill="none" stroke-width="2"/></g></symbol>
+    <symbol id="v-animaux" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M20 44 8 48M21 49 10 56M44 44l12 4M43 49l11 7M24 36 15 26M40 36l9-10" fill="none" stroke-width="3"/>
+      <path d="M15 26C8 26 5 19 9 14l5 6 1-7c6 3 6 11 0 13z" fill="#FF6B35"/><path d="M49 26c7 0 10-7 6-12l-5 6-1-7c-6 3-6 11 0 13z" fill="#FF6B35"/>
+      <ellipse cx="32" cy="42" rx="15" ry="10" fill="#FF6B35"/>
+      <path d="M27 33v-7M37 33v-7" fill="none"/><circle cx="27" cy="23" r="3.6" fill="#FFF7EC"/><circle cx="37" cy="23" r="3.6" fill="#FFF7EC"/></g>
+      <circle cx="27.5" cy="23.5" r="1.6" fill="#1B1411"/><circle cx="37.5" cy="23.5" r="1.6" fill="#1B1411"/></symbol>
+    <symbol id="v-plage" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <circle cx="48" cy="15" r="7" fill="#FFB627"/><path d="M30 41V11" fill="none"/><path d="M32 13 47 37H32z" fill="#FFF7EC"/><path d="M28 17 17 37h11z" fill="#F0476B"/>
+      <path d="M8 41h46l-6 10H14z" fill="#FF6B35"/></g>
+      <path d="M4 58c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4 5-4 10-4 5 4 10 4" fill="none" stroke="#FFF7EC" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="v-fete" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M12 28v20c0 5 7 9 16 9s16-4 16-9V28" fill="#FFB627"/><ellipse cx="28" cy="28" rx="16" ry="6" fill="#FFF7EC"/>
+      <path d="M13 34l6 15 6-14 6 14 6-14 6 13" fill="none" stroke-width="2"/>
+      <path d="M50 30V8l9 3" fill="none"/></g><ellipse cx="47" cy="31" rx="4.5" ry="3.6" fill="#1B1411"/></symbol>
+    <symbol id="v-proverbe" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M5 21c9-3 19-3 27 3v32c-8-6-18-6-27-3z" fill="#FFF7EC"/><path d="M59 21c-9-3-19-3-27 3v32c8-6 18-6 27-3z" fill="#FFF7EC"/>
+      <path d="M11 31c5-1 10-1 15 1M11 39c5-1 10-1 15 1M38 32c5-2 10-2 15-1M38 40c5-2 10-2 15-1" fill="none" stroke-width="2"/>
+      <path d="M27 6q-4 2-4 7M35 6q-4 2-4 7" fill="none" stroke-width="3"/></g></symbol>
+    <symbol id="v-fauxami" viewBox="0 0 64 64"><g stroke="#1B1411" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+      <rect x="5" y="13" width="24" height="32" rx="5" fill="#FFF7EC" transform="rotate(-8 17 29)"/><rect x="35" y="17" width="24" height="32" rx="5" fill="#FFB627" transform="rotate(8 47 33)"/>
+      <circle cx="32" cy="33" r="10" fill="#FFF7EC"/><path d="M26 30h12M26 36h12M36 25l-8 16" fill="none" stroke-width="3"/></g></symbol>
+
+    <!-- Ajout jeu : icône Réglages, même trait que les icônes d'interface -->
+    <symbol id="i-gear" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  </defs>
+</svg>
+<div aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+<!-- Palé kréyòl — illustrations de mots. Format Léa : viewBox 0 0 96 96, trait encre #1B1411 3 px,
+     trois aplats au plus, ombre = encre à 15 %, prévues pour le plateau #FFF1DC.
+     Aplats : palette du jeu + naturels (brun #9A6440, fauve #C9844A, rouge #E8443A, orange #FF9A3C,
+     gris #9C948C, sable #D9C3A0, vert feuille #2E9E4F, ardoise #5E5048). Aucun id interne. -->
+
+<!-- ===================== FRUITS ET LÉGUMES ===================== -->
+<symbol id="il-mangue" viewBox="0 0 96 96">
+  <path d="M26 36C40 16 78 24 76 54C74 79 42 87 27 73C15 61 17 45 26 36Z" fill="#FFB627"/>
+  <path d="M54 34C65 37 71 46 71 57C62 54 56 46 54 34Z" fill="#FF6B35"/>
+  <path d="M27 73C42 87 74 79 76 54C68 72 47 79 27 73Z" fill="#1B1411" opacity=".15"/>
+  <g fill="none" stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M26 36C40 16 78 24 76 54C74 79 42 87 27 73C15 61 17 45 26 36Z"/><path d="M42 27C43 22 46 18 50 15"/></g>
+  <path d="M50 17C58 7 74 7 81 13C73 22 60 22 50 17Z" fill="#7CC64B" stroke="#1B1411" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M55 16Q67 13 76 13" fill="none" stroke="#1B1411" stroke-width="2" stroke-linecap="round"/>
+</symbol>
+
+<symbol id="il-fruit-a-pain" viewBox="0 0 96 96">
+  <path d="M48 16C38 4 20 6 14 14C24 21 38 21 48 16Z" fill="#12B5A9" stroke="#1B1411" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="48" cy="56" r="30" fill="#7CC64B"/>
+  <path d="M30 80C48 92 76 82 78 56C70 74 50 82 30 80Z" fill="#1B1411" opacity=".15"/>
+  <g fill="none" stroke="#1B1411" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55">
+    <path d="M32 42l4 3 4-3M36 45v4M48 38l4 3 4-3M52 41v4M60 50l4 3 4-3M64 53v4M40 56l4 3 4-3M44 59v4M54 64l4 3 4-3M58 67v4M28 60l4 3 4-3M32 63v4M42 72l4 3 4-3M46 75v4"/></g>
+  <circle cx="48" cy="56" r="30" fill="none" stroke="#1B1411" stroke-width="3"/>
+  <path d="M48 26V16" fill="none" stroke="#1B1411" stroke-width="3" stroke-linecap="round"/>
+</symbol>
+
+<symbol id="il-christophine" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M48 19V9" fill="none"/>
+  <path d="M48 11C52 4 62 4 64 10C66 15 60 18 58 14" fill="none" stroke-width="2.4"/>
+  <path d="M48 16C58 16 62 26 66 36C74 48 80 60 76 72C72 84 60 86 48 82C36 86 24 84 20 72C16 60 22 48 30 36C34 26 38 16 48 16Z" fill="#7CC64B"/>
+  <path d="M66 36C74 48 80 60 76 72C72 84 60 86 48 82C58 78 68 70 69 58C69 50 67 42 66 36Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M44 21C36 36 31 56 36 77M52 21C60 36 65 56 60 77M48 24V70" fill="none" stroke-width="2.2" opacity=".5"/>
+  <g fill="#1B1411" stroke="none" opacity=".45"><circle cx="33" cy="50" r="1.5"/><circle cx="63" cy="48" r="1.5"/><circle cx="27" cy="66" r="1.5"/><circle cx="69" cy="66" r="1.5"/><circle cx="31" cy="76" r="1.5"/><circle cx="65" cy="76" r="1.5"/></g>
+  <path d="M48 76V82" fill="none" stroke-width="2.6"/>
+  <path d="M46 16C40 8 28 9 24 15C31 20 41 20 46 16Z" fill="#12B5A9"/>
+</g></symbol>
+
+<symbol id="il-igname" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M20 72l-3 6M34 72l-1 6M50 64l1 6M64 57l2 6M13 58l-7 0" fill="none" stroke-width="2"/>
+  <path d="M74 28C64 30 56 34 48 38C38 42 26 42 18 50C10 58 14 70 24 72C34 74 42 66 52 62C62 58 72 54 80 48Z" fill="#9A6440"/>
+  <path d="M14 63C19 72 30 74 40 68C50 62 64 56 78 48C68 52 58 56 48 60C38 64 26 69 14 63Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M30 44C27 52 28 62 32 70M45 39C42 46 43 56 47 63M60 33C57 40 58 49 62 56" fill="none" stroke-width="2.2" opacity=".5"/>
+  <ellipse cx="77" cy="38" rx="6.5" ry="10.5" transform="rotate(-20 77 38)" fill="#FFF7EC"/>
+  <g fill="#9A6440" stroke="none"><circle cx="76" cy="35" r="1.4"/><circle cx="79" cy="40" r="1.4"/><circle cx="75.5" cy="42.5" r="1.2"/></g>
+</g></symbol>
+
+<symbol id="il-banane" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M83 53l7-10 5 3-7 10z" fill="#9A6440"/>
+  <path d="M18 34C20 64 60 82 86 50C66 54 38 50 26 30Z" fill="#7CC64B"/>
+  <path d="M18 34C20 64 60 82 86 50C64 68 30 62 18 34Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M25 38C32 54 56 62 78 54" fill="none" stroke-width="2" opacity=".45"/>
+  <circle cx="21" cy="32" r="4" fill="#1B1411" stroke="none"/>
+</g></symbol>
+
+<symbol id="il-banane-dessert" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M24 22C46 12 76 16 88 32C90 36 87 39 83 37C70 28 48 26 28 30Z" fill="#FFD93D"/>
+  <path d="M28 30C48 26 70 28 83 37C68 27 46 24 28 30Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M25 26C46 24 72 32 82 50C84 54 81 57 77 55C66 42 46 36 27 34Z" fill="#FFD93D"/>
+  <path d="M27 34C46 36 66 42 77 55C64 40 44 33 27 34Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M24 28C40 34 58 48 64 68C65 72 61 75 58 72C52 56 40 44 23 36Z" fill="#FFD93D"/>
+  <path d="M23 36C40 44 52 56 58 72C55 60 46 48 30 38Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <g fill="#1B1411" stroke="none"><circle cx="86.5" cy="35" r="2.6"/><circle cx="80" cy="54" r="2.6"/><circle cx="61.5" cy="72" r="2.6"/></g>
+  <path d="M10 22l14-5 4 12-14 5z" fill="#9A6440"/>
+</g></symbol>
+
+<symbol id="il-corossol" viewBox="0 0 96 96">
+  <path d="M50 20C70 20 82 40 76 62C72 78 58 88 46 86C32 84 18 72 20 52C22 34 34 20 50 20Z" fill="#7CC64B"/>
+  <path d="M50 20C70 20 82 40 76 62C72 78 58 88 46 86C32 84 18 72 20 52C22 34 34 20 50 20Z" fill="#1B1411" opacity=".18"/>
+  <path d="M46 86C58 88 72 78 76 62C68 76 56 82 40 82Z" fill="#1B1411" opacity=".15"/>
+  <g fill="none" stroke="#1B1411" stroke-width="2.4" stroke-linecap="round">
+    <path d="M36 36q4-1 4-5M52 32q4-1 4-5M64 42q4-1 4-5M30 52q4-1 4-5M46 48q4-1 4-5M60 58q4-1 4-5M36 66q4-1 4-5M52 68q4-1 4-5M44 78q4-1 4-5M66 72q3-1 3-4"/></g>
+  <path d="M50 20C70 20 82 40 76 62C72 78 58 88 46 86C32 84 18 72 20 52C22 34 34 20 50 20Z" fill="none" stroke="#1B1411" stroke-width="3"/>
+  <path d="M50 20 47 10" fill="none" stroke="#1B1411" stroke-width="3" stroke-linecap="round"/>
+  <path d="M48 12C42 4 30 6 26 10C32 15 42 15 48 12Z" fill="#12B5A9" stroke="#1B1411" stroke-width="3" stroke-linejoin="round"/>
+</symbol>
+
+<symbol id="il-goyave" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M34 20C48 20 56 30 56 42C56 56 46 64 34 64C22 64 12 56 12 42C12 30 20 20 34 20Z" fill="#7CC64B"/>
+  <path d="M55.7 38.3A22 22 0 0 1 23 61A27.5 27.5 0 0 0 55.7 38.3Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M30 18l4 4M38 18l-4 4M34 16v6" fill="none" stroke-width="2.4"/>
+  <circle cx="60" cy="60" r="26" fill="#7CC64B"/>
+  <circle cx="60" cy="60" r="21" fill="#FF8AA0" stroke="none"/>
+  <circle cx="60" cy="60" r="9" fill="none" stroke-width="2" opacity=".3"/>
+  <g fill="#FFF7EC" stroke-width="1.5"><circle cx="73" cy="60" r="2.3"/><circle cx="69.2" cy="69.2" r="2.3"/><circle cx="60" cy="73" r="2.3"/><circle cx="50.8" cy="69.2" r="2.3"/><circle cx="47" cy="60" r="2.3"/><circle cx="50.8" cy="50.8" r="2.3"/><circle cx="60" cy="47" r="2.3"/><circle cx="69.2" cy="50.8" r="2.3"/></g>
+  <path d="M85.6 55.6A26 26 0 0 1 47 82.5A32 32 0 0 0 85.6 55.6Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <circle cx="60" cy="60" r="26" fill="none"/>
+</g></symbol>
+
+<symbol id="il-maracudja" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M32 18C32 12 36 8 42 8" fill="none"/>
+  <circle cx="32" cy="40" r="22" fill="#FFD93D"/>
+  <path d="M53.7 36.3A22 22 0 0 1 21 59A27.5 27.5 0 0 0 53.7 36.3Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <g fill="#1B1411" stroke="none" opacity=".35"><circle cx="24" cy="32" r="1.3"/><circle cx="34" cy="28" r="1.3"/><circle cx="20" cy="44" r="1.3"/><circle cx="30" cy="48" r="1.3"/><circle cx="42" cy="36" r="1.3"/><circle cx="26" cy="56" r="1.3"/></g>
+  <circle cx="60" cy="62" r="26" fill="#FFD93D"/>
+  <circle cx="60" cy="62" r="21" fill="#FFF7EC" stroke="none"/>
+  <circle cx="60" cy="62" r="16.5" fill="#FFB627" stroke-width="2"/>
+  <g fill="#1B1411" stroke="none"><circle cx="52" cy="56" r="2.6"/><circle cx="60" cy="52" r="2.6"/><circle cx="68" cy="56" r="2.6"/><circle cx="70" cy="64" r="2.6"/><circle cx="64" cy="70" r="2.6"/><circle cx="55" cy="70" r="2.6"/><circle cx="50" cy="63" r="2.6"/><circle cx="60" cy="62" r="2.6"/></g>
+  <path d="M85.6 57.6A26 26 0 0 1 47 84.5A32 32 0 0 0 85.6 57.6Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <circle cx="60" cy="62" r="26" fill="none"/>
+</g></symbol>
+
+<symbol id="il-coco" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="34" cy="40" r="24" fill="#9A6440"/>
+  <path d="M57.6 35.9A24 24 0 0 1 22 60.8A30 30 0 0 0 57.6 35.9Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M17 32l6 2M20 46l6-1M28 54l4-4M48 30l-5 2M42 21l-3 4M23 22l2 5M47 44l-4 2" fill="none" stroke-width="2" opacity=".5"/>
+  <g fill="#1B1411" stroke="none"><circle cx="30" cy="27" r="2.7"/><circle cx="39" cy="27" r="2.7"/><circle cx="34.5" cy="34" r="2.7"/></g>
+  <path d="M34 62A26 22 0 0 0 86 62Z" fill="#9A6440"/>
+  <path d="M86 62A26 22 0 0 1 60 84C72 80 82 72 86 62Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M40 72l5 2M52 79l2-4M70 78l-2-4" fill="none" stroke-width="2" opacity=".5"/>
+  <ellipse cx="60" cy="62" rx="26" ry="11" fill="#FFFFFF"/>
+  <ellipse cx="60" cy="63" rx="18" ry="6.5" fill="#1B1411" stroke="none" opacity=".12"/>
+  <ellipse cx="60" cy="63" rx="18" ry="6.5" fill="none" stroke-width="2"/>
+</g></symbol>
+
+<symbol id="il-piment" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M30 23C28 15 32 10 38 8" fill="none"/>
+  <path d="M30 26C44 22 52 30 54 44C56 60 64 74 82 82C62 86 44 76 38 60C34 50 30 40 26 32Z" fill="#E8443A"/>
+  <path d="M54 44C56 60 64 74 82 82C66 80 56 70 50 56C48 50 50 46 54 44Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M40 35C44 41 45 49 47 56" fill="none" stroke="#FFF7EC" stroke-width="3.5" opacity=".85"/>
+  <path d="M22 32C22 24 30 18 38 22C40 26 34 30 30 30C28 32 24 34 22 32Z" fill="#7CC64B"/>
+</g></symbol>
+
+<symbol id="il-orange" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="38" cy="44" r="27" fill="#FF9A3C"/>
+  <path d="M64.6 39.4A27 27 0 0 1 24.5 67.4A34 34 0 0 0 64.6 39.4Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <g fill="#1B1411" stroke="none" opacity=".3"><circle cx="26" cy="34" r="1.3"/><circle cx="34" cy="29" r="1.3"/><circle cx="48" cy="32" r="1.3"/><circle cx="22" cy="48" r="1.3"/><circle cx="38" cy="42" r="1.3"/><circle cx="52" cy="46" r="1.3"/><circle cx="30" cy="57" r="1.3"/></g>
+  <path d="M38 18l1-5" fill="none"/>
+  <path d="M40 18C46 8 60 8 64 14C58 20 48 22 40 18Z" fill="#7CC64B"/>
+  <path d="M44 16Q53 13 60 13" fill="none" stroke-width="2"/>
+  <circle cx="66" cy="68" r="20" fill="#FF9A3C"/>
+  <circle cx="66" cy="68" r="15.5" fill="#FFB627" stroke="none"/>
+  <path d="M66 68V53M66 68V83M66 68H51M66 68H81M66 68l11-11M66 68l-11 11M66 68l11 11M66 68l-11-11" fill="none" stroke="#FFF7EC" stroke-width="2"/>
+  <circle cx="66" cy="68" r="15.5" fill="none" stroke="#FFF7EC" stroke-width="2"/>
+  <circle cx="66" cy="68" r="20" fill="none"/>
+</g></symbol>
+
+<symbol id="il-ananas" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M44 40C36 32 28 27 16 25C23 33 31 39 40 45Z" fill="#7CC64B"/>
+  <path d="M52 40C60 32 68 27 80 25C73 33 65 39 56 45Z" fill="#7CC64B"/>
+  <path d="M46 40C40 30 33 21 30 10C40 16 46 26 50 38Z" fill="#7CC64B"/>
+  <path d="M50 40C56 30 62 21 66 10C58 16 52 26 48 38Z" fill="#7CC64B"/>
+  <path d="M48 40C44 28 43 18 47 5C53 15 54 28 52 40Z" fill="#7CC64B"/>
+  <ellipse cx="48" cy="62" rx="23" ry="26" fill="#FFD93D"/>
+  <path d="M36 42L64 80M28 54L50 86M48 37L70 66M58 40L32 80M68 52L46 86M44 37L27 60" fill="none" stroke-width="2" opacity=".45"/>
+  <path d="M70.6 57.5A23 26 0 0 1 36.5 84.5A29 33 0 0 0 70.6 57.5Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <ellipse cx="48" cy="62" rx="23" ry="26" fill="none"/>
+</g></symbol>
+
+<symbol id="il-citron" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10 48C12 46 14 44 16 42C22 32 32 28 42 28C54 28 64 36 66 46C68 48 70 50 72 52C70 54 68 54 66 54C62 64 52 70 40 70C28 70 18 64 16 56C14 54 12 52 10 48Z" fill="#7CC64B"/>
+  <path d="M66 54C62 64 52 70 40 70C28 70 18 64 16 56C26 64 42 66 54 60C60 57 64 55 66 54Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <g fill="#1B1411" stroke="none" opacity=".3"><circle cx="28" cy="42" r="1.3"/><circle cx="40" cy="36" r="1.3"/><circle cx="34" cy="52" r="1.3"/><circle cx="50" cy="44" r="1.3"/><circle cx="24" cy="56" r="1.3"/></g>
+  <circle cx="66" cy="68" r="20" fill="#7CC64B"/>
+  <circle cx="66" cy="68" r="15.5" fill="#D7EF9C" stroke="none"/>
+  <path d="M66 68V53M66 68V83M66 68H51M66 68H81M66 68l11-11M66 68l-11 11M66 68l11 11M66 68l-11-11" fill="none" stroke="#FFF7EC" stroke-width="2"/>
+  <circle cx="66" cy="68" r="15.5" fill="none" stroke="#FFF7EC" stroke-width="2"/>
+  <circle cx="66" cy="68" r="20" fill="none"/>
+</g></symbol>
+
+<symbol id="il-tomate" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M48 30C68 28 84 40 82 58C80 76 64 84 48 84C32 84 16 76 14 58C12 40 28 28 48 30Z" fill="#E8443A"/>
+  <path d="M82 58C80 76 64 84 48 84C32 84 18 78 15 64C24 76 40 80 54 78C68 76 78 68 82 58Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M36 33C30 40 30 50 32 56M60 33C66 40 66 50 64 56" fill="none" stroke-width="2" opacity=".35"/>
+  <path d="M24 54C24 47 27 42 32 39" fill="none" stroke="#FFF7EC" stroke-width="3.5" opacity=".85"/>
+  <path d="M48 32V20Q48 15 53 14" fill="none"/>
+  <path d="M48 30L34 26L42 34L30 40L46 38L48 47L50 38L66 40L54 34L62 26Z" fill="#7CC64B" stroke-width="2.5"/>
+</g></symbol>
+
+<symbol id="il-dachine" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M62 44C48 38 34 28 34 16C34 8 42 4 50 8C54 10 56 14 58 18C60 12 66 6 74 6C82 6 88 14 86 22C84 32 74 40 62 44Z" fill="#2E9E4F"/>
+  <path d="M58 19C60 28 61 36 62 43M59 26L44 17M60 33L42 27M60 26L76 13M61 33L80 24" fill="none" stroke-width="2" opacity=".5"/>
+  <path d="M44 58C50 52 56 48 62 44" fill="none" stroke-width="8"/>
+  <path d="M44 58C50 52 56 48 62 44" fill="none" stroke="#7CC64B" stroke-width="3"/>
+  <ellipse cx="38" cy="70" rx="24" ry="18" fill="#9A6440"/>
+  <path d="M61.6 66.9A24 18 0 0 1 26 85.6A30 22.5 0 0 0 61.6 66.9Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M20 61C28 65 48 65 57 60M15 71C25 77 50 77 61 70M22 82C30 86 46 86 53 83" fill="none" stroke-width="2" opacity=".45"/>
+  <path d="M14 66l-5-1M16 78l-5 2M30 88l-1 4M48 87l2 4M62 76l5 2" fill="none" stroke-width="2"/>
+</g></symbol>
+
+<symbol id="il-patate-douce" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 78L4 84M86 32L92 26" fill="none"/>
+  <path d="M10 76C12 62 30 44 52 34C66 28 80 26 86 32C90 38 82 48 66 58C48 70 28 78 16 80Z" fill="#B5487A"/>
+  <path d="M16 80C28 78 48 70 66 58C76 52 84 44 87 37C82 48 70 56 56 64C40 72 26 78 16 80Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M30 60l4 2M46 48l4 2M62 40l4 2M38 66l3 3M54 54l3 3M74 34l3 2" fill="none" stroke-width="2" opacity=".5"/>
+  <ellipse cx="68" cy="72" rx="17" ry="13" fill="#B5487A"/>
+  <ellipse cx="68" cy="72" rx="12.5" ry="9" fill="#FFE2A8" stroke="none"/>
+  <g fill="#B5487A" stroke="none" opacity=".6"><circle cx="64" cy="70" r="1.2"/><circle cx="70" cy="68" r="1.2"/><circle cx="72" cy="75" r="1.2"/><circle cx="66" cy="76" r="1.2"/></g>
+  <ellipse cx="68" cy="72" rx="17" ry="13" fill="none"/>
+</g></symbol>
+
+<symbol id="il-avocat" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M30 14C40 14 44 24 44 32C50 40 52 50 48 60C44 70 34 72 26 70C16 68 10 58 12 48C14 40 18 36 18 28C18 20 22 14 30 14Z" fill="#2E9E4F"/>
+  <path d="M48 60C44 70 34 72 26 70C34 68 42 62 46 52C48 46 48 40 46 36C50 42 51 52 48 60Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M30 14l1-6" fill="none"/>
+  <path d="M60 26C70 26 76 36 76 46C82 54 86 64 82 74C78 84 68 88 60 88C50 88 40 82 40 70C40 60 46 54 46 46C46 36 50 26 60 26Z" fill="#2E9E4F"/>
+  <path d="M60 31C67 31 71 39 71 47C76 55 80 64 77 72C74 80 67 83 60 83C52 83 45 78 45 70C45 62 51 56 51 47C51 39 53 31 60 31Z" fill="#D9EF8F" stroke="none"/>
+  <path d="M77 72C74 80 67 83 60 83C68 79 73 72 75 62C76 66 77 69 77 72Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <circle cx="61" cy="67" r="10" fill="#9A6440"/>
+  <path d="M56 63Q58 60 61 60" fill="none" stroke="#FFF7EC" stroke-width="2.4"/>
+</g></symbol>
+
+<symbol id="il-papaye" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M38 11l-2-6" fill="none"/>
+  <path d="M40 10C54 8 62 20 66 34C72 50 80 62 76 76C72 88 56 92 44 88C30 84 22 72 24 58C26 46 32 36 32 24C32 16 34 11 40 10Z" fill="#7CC64B"/>
+  <path d="M41 15C52 14 58 24 62 36C67 51 75 63 71 75C68 84 56 87 45 84C33 80 28 70 29 59C31 47 37 38 37 26C37 19 37 15 41 15Z" fill="#FF9A3C" stroke="none"/>
+  <path d="M71 75C68 84 56 87 45 84C56 82 64 76 67 66C69 70 71 72 71 75Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M46 30C54 34 58 48 60 60C62 72 56 78 50 76C44 74 42 66 42 56C42 46 40 34 46 30Z" fill="#FFB627" stroke-width="2"/>
+  <g fill="#1B1411" stroke="none"><circle cx="47" cy="38" r="2.5"/><circle cx="51.5" cy="44" r="2.5"/><circle cx="46" cy="49" r="2.5"/><circle cx="53" cy="52" r="2.5"/><circle cx="47.5" cy="57" r="2.5"/><circle cx="55" cy="60" r="2.5"/><circle cx="46.5" cy="64" r="2.5"/><circle cx="52.5" cy="66" r="2.5"/><circle cx="56.5" cy="70" r="2.5"/><circle cx="50" cy="72" r="2.5"/></g>
+</g></symbol>
+
+<symbol id="il-cachiman" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M48 32V20" fill="none"/>
+  <path d="M48 86C30 74 16 60 18 42C20 28 32 22 42 26C46 28 48 32 48 32C48 32 50 28 54 26C64 22 78 28 80 42C82 60 66 74 48 86Z" fill="#D9774A"/>
+  <path d="M80 42C82 60 66 74 48 86C62 72 72 60 74 46C75 40 74 34 72 30C76 32 79 36 80 42Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M24 42q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0M22 52q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0M28 62q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0M36 72q4 4 8 0q4 4 8 0q4 4 8 0" fill="none" stroke-width="2" opacity=".45"/>
+  <path d="M48 22C54 12 66 12 70 16C64 22 54 24 48 22Z" fill="#7CC64B"/>
+</g></symbol>
+
+<!-- ===================== ANIMAUX ===================== -->
+<symbol id="il-chien" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M48 20C64 20 72 32 72 48C72 64 62 78 48 78C34 78 24 64 24 48C24 32 32 20 48 20Z" fill="#D9A066"/>
+  <path d="M72 46C72 64 62 78 48 78C38 78 32 72 28 66C38 72 54 72 62 62C68 56 70 50 72 46Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M32 24C20 22 10 32 12 50C13 60 18 66 25 62C26 50 30 38 36 28Z" fill="#9A6440"/>
+  <path d="M64 24C76 22 86 32 84 50C83 60 78 66 71 62C70 50 66 38 60 28Z" fill="#9A6440"/>
+  <ellipse cx="48" cy="62" rx="14" ry="11" fill="#FFF7EC" stroke-width="2.5"/>
+  <path d="M48 61v4M41 65C44 69 48 68 48 65C48 68 52 69 55 65" fill="none" stroke-width="2.5"/>
+  <path d="M45 67h6v5a3 3 0 0 1-6 0z" fill="#FF8AA0" stroke-width="2"/>
+  <path d="M42 55C42 52 54 52 54 55C54 58 50 61 48 61C46 61 42 58 42 55Z" fill="#1B1411" stroke="none"/>
+  <g stroke="none"><circle cx="39" cy="44" r="3.4" fill="#1B1411"/><circle cx="57" cy="44" r="3.4" fill="#1B1411"/><circle cx="40.2" cy="42.8" r="1.2" fill="#FFFFFF"/><circle cx="58.2" cy="42.8" r="1.2" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-chat" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M22 46L20 14L44 32Z" fill="#FFB627"/>
+  <path d="M74 46L76 14L52 32Z" fill="#FFB627"/>
+  <path d="M25.5 36L24.5 22L35 30Z" fill="#FF8AA0" stroke="none"/>
+  <path d="M70.5 36L71.5 22L61 30Z" fill="#FF8AA0" stroke="none"/>
+  <path d="M48 28C66 28 80 40 80 56C80 72 66 82 48 82C30 82 16 72 16 56C16 40 30 28 48 28Z" fill="#FFB627"/>
+  <path d="M80 56C80 72 66 82 48 82C38 82 30 79 24 74C36 78 54 78 66 70C74 64 78 60 80 56Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M48 31v9M40 32l2 8M56 32l-2 8" fill="none" stroke-width="2.5" opacity=".45"/>
+  <ellipse cx="37" cy="52" rx="5.5" ry="6" fill="#7CC64B" stroke-width="2.5"/>
+  <ellipse cx="59" cy="52" rx="5.5" ry="6" fill="#7CC64B" stroke-width="2.5"/>
+  <g fill="#1B1411" stroke="none"><ellipse cx="37" cy="52" rx="1.8" ry="4.5"/><ellipse cx="59" cy="52" rx="1.8" ry="4.5"/></g>
+  <path d="M44 62h8l-4 4.5z" fill="#FF8AA0" stroke-width="2"/>
+  <path d="M48 66.5v3M48 69.5C46 73 41 73 40 70M48 69.5C50 73 55 73 56 70" fill="none" stroke-width="2.5"/>
+  <path d="M34 64L12 60M34 68L12 71M62 64L84 60M62 68L84 71" fill="none" stroke-width="2"/>
+</g></symbol>
+
+<symbol id="il-poule" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M30 50C22 46 16 38 18 28C24 32 28 36 30 42C30 36 32 30 36 26C38 34 38 42 36 48Z" fill="#C9844A"/>
+  <path d="M28 50C22 56 22 68 30 74C40 82 62 82 72 72C80 64 78 50 70 44C72 36 72 26 64 22C56 18 48 24 48 32C48 38 50 42 50 44C42 42 34 44 28 50Z" fill="#C9844A"/>
+  <path d="M78 60C78 66 76 70 72 72C62 82 40 82 30 74C26 70 24 66 24 60C30 70 44 76 58 74C68 72 74 66 78 60Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M38 58C46 52 60 54 64 62C58 70 44 70 38 58Z" fill="#C9844A" stroke-width="2.5"/>
+  <path d="M47 60l3 6M55 60l2 6" fill="none" stroke-width="2" opacity=".5"/>
+  <path d="M54 22C52 15 57 12 59 16C60 10 66 10 66 16C70 14 73 18 69 23C64 20 58 20 54 22Z" fill="#E8443A" stroke-width="2.5"/>
+  <path d="M71 29L81 32L71 36Z" fill="#FFB627" stroke-width="2.5"/>
+  <path d="M70 37C73 42 69 46 66 41Z" fill="#E8443A" stroke-width="2"/>
+  <path d="M16 76C18 90 76 92 82 76C70 84 28 84 16 76Z" fill="#FFB627"/>
+  <path d="M24 82l8 2M40 85l8 1M58 85l8-1M72 83l6-2" fill="none" stroke-width="2" opacity=".5"/>
+  <g stroke="none"><circle cx="64" cy="29" r="2.6" fill="#1B1411"/><circle cx="64.9" cy="28.1" r=".9" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-coq" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M34 46C22 40 14 26 20 10C24 24 30 32 40 38Z" fill="#12B5A9"/>
+  <path d="M32 50C16 48 6 36 6 20C12 34 22 40 36 44Z" fill="#12B5A9"/>
+  <path d="M32 54C18 58 8 52 4 40C12 48 22 50 34 50Z" fill="#12B5A9"/>
+  <path d="M46 71V86M58 71V86M40 88h11M52 88h11" fill="none"/>
+  <path d="M30 48C30 62 40 72 54 72C66 72 74 62 72 50C70 44 66 40 66 32C66 24 62 18 56 18C50 18 46 24 48 32C48 38 44 42 38 42C34 42 30 44 30 48Z" fill="#FFB627"/>
+  <path d="M72 50C74 62 66 72 54 72C44 72 36 66 32 58C40 66 54 68 62 62C68 58 71 54 72 50Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M48 36l3 5 3-5 3 5 3-5" fill="none" stroke-width="2" opacity=".5"/>
+  <path d="M40 54C48 48 60 50 64 58C56 66 46 66 40 54Z" fill="#FFB627" stroke-width="2.5"/>
+  <path d="M48 56l3 5M56 56l2 5" fill="none" stroke-width="2" opacity=".5"/>
+  <path d="M48 18C46 11 50 7 53 11C54 4 60 4 61 10C64 6 70 8 67 16C62 14 54 14 48 18Z" fill="#E8443A" stroke-width="2.5"/>
+  <path d="M65 22L75 25L65 29Z" fill="#FFB627" stroke-width="2.5"/>
+  <path d="M63 30C66 38 59 40 58 33Z" fill="#E8443A" stroke-width="2"/>
+  <g stroke="none"><circle cx="58" cy="23" r="2.6" fill="#1B1411"/><circle cx="58.9" cy="22.1" r=".9" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-cochon" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M28 38L20 14L44 28Z" fill="#FF8AA0"/>
+  <path d="M68 38L76 14L52 28Z" fill="#FF8AA0"/>
+  <circle cx="48" cy="54" r="28" fill="#FF8AA0"/>
+  <path d="M75.6 49.2A28 28 0 0 1 34 78.2A35 35 0 0 0 75.6 49.2Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <ellipse cx="48" cy="62" rx="13" ry="9.5" fill="#F0476B"/>
+  <g fill="#1B1411" stroke="none"><ellipse cx="43" cy="62" rx="2.4" ry="3.6"/><ellipse cx="53" cy="62" rx="2.4" ry="3.6"/></g>
+  <path d="M42 76Q48 80 54 76" fill="none" stroke-width="2.5"/>
+  <g stroke="none"><circle cx="37" cy="46" r="3.2" fill="#1B1411"/><circle cx="59" cy="46" r="3.2" fill="#1B1411"/><circle cx="38.1" cy="44.9" r="1.1" fill="#FFFFFF"/><circle cx="60.1" cy="44.9" r="1.1" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-boeuf" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M34 30C22 32 12 26 10 12C18 18 26 20 38 22Z" fill="#FFF7EC"/>
+  <path d="M62 30C74 32 84 26 86 12C78 18 70 20 58 22Z" fill="#FFF7EC"/>
+  <path d="M30 40C22 44 12 42 10 36C16 30 26 30 32 34Z" fill="#C9844A"/>
+  <path d="M66 40C74 44 84 42 86 36C80 30 70 30 64 34Z" fill="#C9844A"/>
+  <path d="M48 20C62 20 68 30 66 44C64 56 62 64 62 72C62 82 56 86 48 86C40 86 34 82 34 72C34 64 32 56 30 44C28 30 34 20 48 20Z" fill="#C9844A"/>
+  <path d="M66 40C64 54 62 62 62 70C58 62 58 52 60 44C61 38 63 34 64 30C66 33 66 36 66 40Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M42 22C46 30 46 38 48 46C50 38 50 30 54 22C50 20 46 20 42 22Z" fill="#FFF7EC" stroke="none"/>
+  <ellipse cx="48" cy="72" rx="15" ry="12" fill="#FFF7EC"/>
+  <g fill="#1B1411" stroke="none"><ellipse cx="42" cy="72" rx="2.6" ry="3.6"/><ellipse cx="54" cy="72" rx="2.6" ry="3.6"/></g>
+  <g stroke="none"><circle cx="38" cy="44" r="3.2" fill="#1B1411"/><circle cx="58" cy="44" r="3.2" fill="#1B1411"/><circle cx="39.1" cy="42.9" r="1.1" fill="#FFFFFF"/><circle cx="59.1" cy="42.9" r="1.1" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-cabri" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M24 40L18 30L22 28L28 38Z" fill="#9A6440" stroke-width="2.5"/>
+  <path d="M27 56h6v26h-6zM37 56h6v26h-6zM57 56h6v26h-6zM65 54h6v28h-6z" fill="#9A6440"/>
+  <g fill="#1B1411" stroke="none"><rect x="26" y="80" width="8" height="5" rx="1"/><rect x="36" y="80" width="8" height="5" rx="1"/><rect x="56" y="80" width="8" height="5" rx="1"/><rect x="64" y="80" width="8" height="5" rx="1"/></g>
+  <path d="M22 46C22 40 28 36 36 36H62C68 36 72 42 72 48C72 56 68 60 62 60H32C26 60 22 54 22 46Z" fill="#9A6440"/>
+  <path d="M72 48C72 56 68 60 62 60H32C26 60 22 54 22 50C28 56 40 56 52 56C62 56 70 54 72 48Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M72 16C70 6 60 2 52 6C60 8 64 12 66 20Z" fill="#FFF7EC"/>
+  <path d="M62 44L66 24C68 16 74 12 80 14L90 26C92 30 90 34 86 34L78 32L74 46Z" fill="#9A6440"/>
+  <path d="M70 24L58 28L68 30Z" fill="#9A6440" stroke-width="2.5"/>
+  <path d="M86 34L85 45L80 33Z" fill="#1B1411"/>
+  <g stroke="none"><circle cx="79" cy="22" r="2.5" fill="#1B1411"/><circle cx="79.9" cy="21.1" r=".9" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-mouton" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M34 66v18M44 68v16M56 68v16M66 66v18" fill="none" stroke-width="4.5"/>
+  <path d="M24 58A10 10 0 0 1 30 38A12 12 0 0 1 50 32A12 12 0 0 1 68 38A10 10 0 0 1 72 58A11 11 0 0 1 56 70A12 12 0 0 1 38 70A11 11 0 0 1 24 58Z" fill="#FFFFFF"/>
+  <path d="M72 58A11 11 0 0 1 56 70A12 12 0 0 1 38 70A11 11 0 0 1 24 58C34 66 60 66 72 58Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M34 50q3-4 6 0M48 44q3-4 6 0M52 57q3-4 6 0M38 60q3-4 6 0" fill="none" stroke-width="2" opacity=".4"/>
+  <path d="M69 41L58 36L66 47Z" fill="#5E5048" stroke-width="2.5"/>
+  <path d="M84 39L94 35L88 46Z" fill="#5E5048" stroke-width="2.5"/>
+  <ellipse cx="77" cy="47" rx="10" ry="13" transform="rotate(-25 77 47)" fill="#5E5048"/>
+  <circle cx="72" cy="35" r="5.5" fill="#FFFFFF"/>
+  <g stroke="none"><circle cx="80" cy="46" r="3.2" fill="#FFFFFF"/><circle cx="80.6" cy="46.4" r="1.7" fill="#1B1411"/></g>
+</g></symbol>
+
+<symbol id="il-cheval" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M54 16C42 20 32 30 26 44C22 56 20 72 22 88H30C28 72 30 56 34 46C40 32 46 24 56 20Z" fill="#3A2A22"/>
+  <path d="M30 88C28 70 30 54 38 40C42 30 48 22 54 20L57 9L62 19C66 21 70 25 72 30L85 54C89 61 86 68 79 70C73 72 68 68 64 64L56 60C53 70 52 80 54 88Z" fill="#C9844A"/>
+  <path d="M56 60C53 70 52 80 54 88H47C46 78 48 68 52 61Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M64 25L82 57L78 60L61 28Z" fill="#FFF7EC" stroke="none"/>
+  <path d="M56 59C54 53 56 48 62 46" fill="none" stroke-width="2" opacity=".45"/>
+  <path d="M57 10C61 14 62 22 57 27C55 22 55 16 57 10Z" fill="#3A2A22" stroke-width="2.5"/>
+  <ellipse cx="81" cy="62" rx="2" ry="3" transform="rotate(-30 81 62)" fill="#1B1411" stroke="none"/>
+  <path d="M71 68Q75 71 80 69" fill="none" stroke-width="2.5"/>
+  <g stroke="none"><circle cx="63" cy="35" r="2.8" fill="#1B1411"/><circle cx="64" cy="34" r="1" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-canard" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M14 46C22 50 30 50 40 50C48 50 54 46 56 40C54 34 54 26 60 22C66 18 74 20 76 28C78 34 74 38 72 42C70 46 72 50 76 52C82 56 82 66 74 72C64 80 36 80 24 72C16 66 12 56 14 46Z" fill="#FFFFFF"/>
+  <path d="M82 60C82 66 80 70 74 72C64 80 36 80 24 72C40 76 60 74 72 66C78 62 80 60 82 60Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M30 58C40 50 56 52 62 60C54 68 40 68 30 58Z" fill="#FFFFFF" stroke-width="2.5"/>
+  <path d="M40 58l6 4M48 56l6 4" fill="none" stroke-width="2" opacity=".45"/>
+  <path d="M75 27C82 26 88 27 91 30C90 34 84 35 75 34Z" fill="#FF9A3C" stroke-width="2.5"/>
+  <path d="M8 76q7-5 14 0t14 0 14 0 14 0 14 0 14 0C88 86 70 90 48 90S8 86 8 76Z" fill="#3BA7F5"/>
+  <path d="M26 84q5-3 10 0M54 85q5-3 10 0" fill="none" stroke="#FFF7EC" stroke-width="2.5"/>
+  <g stroke="none"><circle cx="67" cy="28" r="2.5" fill="#1B1411"/><circle cx="67.9" cy="27.1" r=".9" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-crabe" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M30 60 13 66M30 66 15 77M35 70 26 83M66 60l17 6M66 66l15 11M61 70l9 13M35 50 22 36M61 50l13-14" fill="none" stroke-width="3.5"/>
+  <path d="M22 37C12 37 7 27 13 20l6 8 2-10c8 4 9 16 1 19z" fill="#FF6B35" stroke-width="3"/>
+  <path d="M74 37c10 0 15-10 9-17l-6 8-2-10c-8 4-9 16-1 19z" fill="#FF6B35" stroke-width="3"/>
+  <ellipse cx="48" cy="58" rx="23" ry="15" fill="#FF6B35" stroke-width="3"/>
+  <path d="M42 47V37M54 47V37" fill="none" stroke-width="3"/>
+  <circle cx="42" cy="33" r="5.5" fill="#FFF7EC" stroke-width="3"/><circle cx="54" cy="33" r="5.5" fill="#FFF7EC" stroke-width="3"/>
+  <path d="M42 61q6 4 12 0" fill="none" stroke-width="2.5"/></g>
+  <path d="M26 62C30 72 66 72 70 62C62 68 34 68 26 62Z" fill="#1B1411" opacity=".15"/>
+  <circle cx="43" cy="34" r="2.3" fill="#1B1411"/><circle cx="55" cy="34" r="2.3" fill="#1B1411"/>
+</symbol>
+
+<symbol id="il-mangouste" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M28 52C16 52 6 60 4 74C8 72 14 68 20 66C24 64 28 62 30 60Z" fill="#A88660"/>
+  <path d="M28 58l-3 16h6l3-14zM38 60l-1 14h6l1-13zM58 58l1 16h6l-1-15zM66 54l3 18h6l-3-18z" fill="#A88660"/>
+  <path d="M18 56C18 46 30 42 44 42C56 42 64 40 70 36C74 33 80 32 86 36L93 43C91 47 86 47 80 47C76 51 72 55 66 59C58 64 44 66 32 64C24 62 18 60 18 56Z" fill="#A88660"/>
+  <path d="M66 59C58 64 44 66 32 64C24 62 18 60 18 56C26 60 44 62 56 58C62 56 66 54 70 52C69 55 68 57 66 59Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M30 50l2-3M40 48l2-3M50 47l2-3M60 45l2-3M35 56l2-3M46 55l2-3M56 53l2-3M14 64l2-3M9 70l2-3" fill="none" stroke-width="2" opacity=".45"/>
+  <path d="M70 35C69 30 75 28 77 32" fill="#A88660" stroke-width="2.5"/>
+  <circle cx="92" cy="43" r="2.3" fill="#1B1411" stroke="none"/>
+  <g stroke="none"><circle cx="81" cy="40" r="2.4" fill="#1B1411"/><circle cx="81.8" cy="39.2" r=".85" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-colibri" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M22 64 6 78l20-6z" fill="#12B5A9"/>
+  <path d="M20 64C24 50 40 42 56 44C64 46 66 56 60 62C52 70 32 72 20 64Z" fill="#12B5A9"/>
+  <path d="M38 52C34 36 44 18 62 12C60 28 54 44 42 56Z" fill="#3BA7F5"/>
+  <circle cx="63" cy="42" r="11" fill="#12B5A9"/>
+  <path d="M58 51C63 54 69 52 72 47C70 53 64 57 57 56Z" fill="#F0476B" stroke-width="2.4"/>
+  <path d="M73 39 93 33" fill="none"/></g>
+  <path d="M22 62C34 70 50 68 58 62C48 66 34 66 22 62Z" fill="#1B1411" opacity=".15"/>
+  <circle cx="66" cy="40" r="2.8" fill="#1B1411"/><circle cx="67" cy="39" r="1" fill="#FFF"/>
+</symbol>
+
+<symbol id="il-mabouya" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M43 34L30 30L22 20M53 34L66 30L74 20M42 58L30 64L24 74M54 58L66 64L72 74" fill="none" stroke-width="8"/>
+  <path d="M43 34L30 30L22 20M53 34L66 30L74 20M42 58L30 64L24 74M54 58L66 64L72 74" fill="none" stroke="#D9C3A0" stroke-width="3"/>
+  <path d="M48 70C48 80 54 86 62 86C70 86 72 78 66 76" fill="none" stroke-width="9"/>
+  <path d="M48 70C48 80 54 86 62 86C70 86 72 78 66 76" fill="none" stroke="#D9C3A0" stroke-width="4"/>
+  <g fill="#D9C3A0" stroke-width="2"><circle cx="17" cy="19" r="3"/><circle cx="20" cy="13.5" r="3"/><circle cx="26" cy="14" r="3"/><circle cx="79" cy="19" r="3"/><circle cx="76" cy="13.5" r="3"/><circle cx="70" cy="14" r="3"/><circle cx="19" cy="76" r="3"/><circle cx="21" cy="81.5" r="3"/><circle cx="27" cy="80" r="3"/><circle cx="77" cy="76" r="3"/><circle cx="75" cy="81.5" r="3"/><circle cx="69" cy="80" r="3"/></g>
+  <path d="M48 8C55 8 59 14 57 21C56 25 54 27 54 29C58 36 59 48 56 60C55 66 52 70 48 72C44 70 41 66 40 60C37 48 38 36 42 29C42 27 40 25 39 21C37 14 41 8 48 8Z" fill="#D9C3A0"/>
+  <path d="M54 29C58 36 59 48 56 60C55 66 52 70 48 72C52 64 54 54 54 44C54 38 53 33 54 29Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M43 38q5 3 10 0M42 46q6 3 12 0M42 54q6 3 12 0M44 62q4 3 8 0" fill="none" stroke="#9A6440" stroke-width="3"/>
+  <circle cx="41.5" cy="16" r="3.8" fill="#FFF7EC" stroke-width="2"/><circle cx="54.5" cy="16" r="3.8" fill="#FFF7EC" stroke-width="2"/>
+  <g fill="#1B1411" stroke="none"><ellipse cx="41.5" cy="16" rx="1" ry="2.6"/><ellipse cx="54.5" cy="16" rx="1" ry="2.6"/></g>
+</g></symbol>
+
+<symbol id="il-iguane" viewBox="0 0 96 96"><g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M62 58C78 60 90 70 86 80C82 88 70 85 72 77" fill="none" stroke="#1B1411" stroke-width="10"/>
+  <path d="M62 58C78 60 90 70 86 80C82 88 70 85 72 77" fill="none" stroke="#7CC64B" stroke-width="4"/>
+  <path d="M36 61 31 73h-5M56 61l4 12h5" fill="none" stroke="#1B1411" stroke-width="3.5"/>
+  <path d="M12 50C16 40 28 37 36 41C46 45 58 47 68 57C58 65 40 65 28 61C20 59 12 57 12 50Z" fill="#7CC64B" stroke="#1B1411" stroke-width="3"/>
+  <path d="M28 61C40 65 58 65 68 57C56 61 40 61 28 58Z" fill="#1B1411" opacity=".15"/>
+  <path d="M33 40l3-7 3 8 3-7 3 8 3-6 3 8 3-5 2 7 3-4 1 6" fill="#FFB627" stroke="#1B1411" stroke-width="2.4"/>
+  <path d="M20 56C19 65 26 70 31 62" fill="#FFB627" stroke="#1B1411" stroke-width="2.6"/>
+  <circle cx="29" cy="51" r="3.4" fill="#3BA7F5" stroke="#1B1411" stroke-width="2"/>
+  <circle cx="21" cy="46" r="3.6" fill="#FFF7EC" stroke="#1B1411" stroke-width="2"/></g>
+  <circle cx="21.5" cy="46" r="1.6" fill="#1B1411"/>
+</symbol>
+
+<symbol id="il-anoli" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 74L92 62" fill="none" stroke-width="9"/>
+  <path d="M4 74L92 62" fill="none" stroke="#9A6440" stroke-width="4"/>
+  <path d="M32 55C22 55 14 60 11 67C9 73 13 78 18 76" fill="none" stroke-width="7"/>
+  <path d="M32 55C22 55 14 60 11 67C9 73 13 78 18 76" fill="none" stroke="#7CC64B" stroke-width="2.6"/>
+  <path d="M64 54l3 10h5M60 55l-2 10-4 1M44 57l-3 9-4 1M48 57l4 9h4" fill="none" stroke-width="3"/>
+  <path d="M69 51C66 64 76 69 85 50C79 52 73 52 69 51Z" fill="#FF6B35" stroke-width="2.5"/>
+  <path d="M30 52C40 46 56 44 66 44C72 40 80 38 86 42C90 44 90 48 86 50C80 52 74 52 70 54C62 58 50 58 40 58C36 58 32 56 30 52Z" fill="#7CC64B"/>
+  <path d="M70 54C62 58 50 58 40 58C36 58 32 56 30 52C38 55 54 55 66 52C68 52 70 53 70 54Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <g stroke="none"><circle cx="80" cy="44" r="2.5" fill="#1B1411"/><circle cx="80.8" cy="43.2" r=".9" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-poisson" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M70 48L90 30C92 42 92 54 90 66Z" fill="#FFB627"/>
+  <path d="M32 33C36 22 48 20 58 30Z" fill="#FFB627"/>
+  <path d="M40 63C44 72 52 74 56 64Z" fill="#FFB627"/>
+  <path d="M10 48C22 30 46 24 62 32C68 35 72 41 74 48C72 55 68 61 62 64C46 72 22 66 10 48Z" fill="#3BA7F5"/>
+  <path d="M62 64C46 72 22 66 10 48C24 62 44 66 60 60C66 58 70 54 74 48C72 55 68 61 62 64Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M44 40q4 4 0 8M52 38q4 4 0 8M48 50q4 4 0 8M56 48q4 4 0 8M60 40q3 4 0 8" fill="none" stroke-width="2" opacity=".4"/>
+  <path d="M31 38C27 44 27 52 31 58" fill="none" stroke-width="2.5"/>
+  <path d="M11 50l5 1" fill="none" stroke-width="2.5"/>
+  <circle cx="21" cy="44" r="4.4" fill="#FFFFFF" stroke-width="2"/>
+  <circle cx="21.6" cy="44.4" r="2.2" fill="#1B1411" stroke="none"/>
+</g></symbol>
+
+<symbol id="il-oiseau" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 82L90 76" fill="none" stroke-width="9"/>
+  <path d="M6 82L90 76" fill="none" stroke="#9A6440" stroke-width="4"/>
+  <path d="M28 60L8 70L12 56Z" fill="#5E5048"/>
+  <path d="M44 70v8M52 69v8" fill="none"/>
+  <ellipse cx="44" cy="54" rx="22" ry="18" transform="rotate(-15 44 54)" fill="#FFD93D"/>
+  <path d="M65 56A22 18 -15 0 1 40 72C52 70 60 64 65 56Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M23 54C24 42 38 34 52 37C46 44 42 54 34 63C28 62 23 59 23 54Z" fill="#5E5048" stroke-width="2.5"/>
+  <circle cx="62" cy="36" r="13" fill="#5E5048"/>
+  <path d="M56 29C60 26.5 66 26.5 70 29.5" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+  <path d="M73 35C78 36 81 39 83 43C78 42 74 41 72 40Z" fill="#1B1411" stroke-width="2"/>
+  <g stroke="none"><circle cx="65" cy="36" r="3.6" fill="#FFFFFF"/><circle cx="65.6" cy="36.2" r="2" fill="#1B1411"/></g>
+</g></symbol>
+
+<symbol id="il-fourmi" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M50 52L40 58L32 60M56 52L64 58L70 58" fill="none" stroke-width="2.5" opacity=".45"/>
+  <path d="M50 54L42 64L34 74M54 55L56 68L52 80M58 54L68 62L76 72" fill="none"/>
+  <path d="M74 33L76 21L86 15M67 32L64 21L72 11" fill="none" stroke-width="2.6"/>
+  <ellipse cx="26" cy="54" rx="17" ry="13" fill="#FF6B35"/>
+  <path d="M42.7 51.7A17 13 0 0 1 17.5 65.3A21 16 0 0 0 42.7 51.7Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <path d="M18 44Q14 54 18 64M28 42Q24 54 28 66" fill="none" stroke-width="2" opacity=".4"/>
+  <circle cx="44" cy="54" r="4.5" fill="#FF6B35"/>
+  <ellipse cx="55" cy="50" rx="9" ry="6.5" transform="rotate(-15 55 50)" fill="#FF6B35"/>
+  <circle cx="70" cy="42" r="11" fill="#FF6B35"/>
+  <path d="M80 46l6 2-4 3" fill="none" stroke-width="2.5"/>
+  <g stroke="none"><circle cx="73" cy="40" r="2.6" fill="#1B1411"/><circle cx="73.9" cy="39.1" r=".9" fill="#FFFFFF"/></g>
+</g></symbol>
+
+<symbol id="il-rat" viewBox="0 0 96 96"><g stroke="#1B1411" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M24 64C12 68 4 60 8 50C11 43 18 44 20 36" fill="none" stroke-width="7"/>
+  <path d="M24 64C12 68 4 60 8 50C11 43 18 44 20 36" fill="none" stroke="#FF8AA0" stroke-width="2.6"/>
+  <path d="M34 69l-3 5h8M60 69l-2 5h8" fill="none" stroke-width="2.5"/>
+  <path d="M20 62C20 50 34 42 50 44C60 45 66 48 72 52L86 58C88 60 86 63 83 64C77 68 66 70 56 70H30C24 70 20 66 20 62Z" fill="#9C948C"/>
+  <path d="M83 64C77 68 66 70 56 70H30C24 70 20 66 20 62C28 66 44 66 58 64C70 62 78 62 83 64Z" fill="#1B1411" stroke="none" opacity=".15"/>
+  <circle cx="61" cy="44" r="9" fill="#9C948C"/>
+  <circle cx="61" cy="44" r="5" fill="#FF8AA0" stroke="none"/>
+  <circle cx="86.5" cy="60" r="2.4" fill="#FF8AA0" stroke-width="1.5"/>
+  <path d="M80 59l10-5M80 62l11 2" fill="none" stroke-width="1.8"/>
+  <g stroke="none"><circle cx="73" cy="53" r="2.4" fill="#1B1411"/><circle cx="73.8" cy="52.2" r=".85" fill="#FFFFFF"/></g>
+</g></symbol>
+</svg></div>
+<main id="app" class="screen" aria-live="off"></main>
+<script>
+(function(){
+'use strict';
+var DATA=/*DATA*/[{"id":"sal-01","theme":"salutations","type":"mot","fr":"bonjour","cr":"bonjou","note":"Se dit toute la journée jusqu’à la tombée du jour.","source":"Confiant"},{"id":"sal-02","theme":"salutations","type":"mot","fr":"bonsoir","cr":"bonswè","source":"président","variantes":["bèl bonswè"],"note":"Deux façons de le dire, selon l'intensité."},{"id":"sal-03","theme":"salutations","type":"expression","fr":"comment ça va ?","cr":"Sa ou fè ?","note":"Question traditionnelle de salutation.","source":"Confiant"},{"id":"sal-04","theme":"salutations","type":"expression","fr":"je suis là (réponse à « Sa ou fè ? »)","cr":"Man la","note":"« Man » = je. On répond ainsi pour dire que tout va bien.","source":"président"},{"id":"sal-05","theme":"salutations","type":"mot","fr":"merci","cr":"mèsi","source":"Confiant"},{"id":"sal-06","theme":"salutations","type":"expression","fr":"merci beaucoup","cr":"Mèsi anpil","source":"Confiant"},{"id":"sal-07","theme":"salutations","type":"mot","fr":"s’il vous plaît","cr":"souplé","source":"corpus"},{"id":"sal-08","theme":"salutations","type":"mot","fr":"pardon, excuse","cr":"padon","exemple_cr":"Man ka mandé’w padon.","exemple_fr":"Je te demande pardon.","source":"Confiant"},{"id":"sal-09","theme":"salutations","type":"expression","fr":"pas de problème","cr":"Pa ni pwoblèm","source":"corpus"},{"id":"sal-10","theme":"salutations","type":"mot","fr":"oui","cr":"wi","source":"glossaire"},{"id":"sal-11","theme":"salutations","type":"mot","fr":"non","cr":"non","source":"corpus"},{"id":"sal-12","theme":"salutations","type":"expression","fr":"à demain","cr":"A dimen","source":"corpus"},{"id":"sal-13","theme":"salutations","type":"expression","fr":"à tout à l’heure","cr":"A talè","note":"« Talè » = bientôt.","source":"président"},{"id":"sal-14","theme":"salutations","type":"expression","fr":"au revoir","cr":"An lòt solèy","source":"président"},{"id":"sal-15","theme":"salutations","type":"mot","fr":"bienvenue","cr":"Bienvini","source":"corpus"},{"id":"sal-16","theme":"salutations","type":"expression","fr":"comment t’appelles-tu ?","cr":"Ki non’w ?","source":"président"},{"id":"sal-17","theme":"salutations","type":"expression","fr":"je m’appelle…","cr":"Yo ka kriyé mwen…","note":"Littéralement : on m’appelle…","source":"président","variantes":["Non mwen sé…"]},{"id":"sal-18","theme":"salutations","type":"expression","fr":"je ne comprends pas","cr":"Man pa konprann","source":"président"},{"id":"sal-19","theme":"salutations","type":"mot","fr":"félicitations","cr":"Félisitasion","source":"corpus"},{"id":"sal-20","theme":"salutations","type":"mot","fr":"monsieur","cr":"misié","fr_f":"madame","cr_f":"madanm","source":"corpus"},{"id":"qt-01","theme":"quotidien","type":"mot","fr":"maison","cr":"kay","source":"corpus"},{"id":"qt-02","theme":"quotidien","type":"mot","fr":"manger","cr":"manjé","note":"Sert aussi de nom : la nourriture.","source":"Confiant"},{"id":"qt-03","theme":"quotidien","type":"mot","fr":"boire","cr":"bwè","source":"Confiant"},{"id":"qt-04","theme":"quotidien","type":"mot","fr":"dormir","cr":"dòmi","source":"Confiant"},{"id":"qt-05","theme":"quotidien","type":"mot","fr":"travail, travailler","cr":"travay","source":"corpus"},{"id":"qt-06","theme":"quotidien","type":"mot","fr":"école","cr":"lékol","source":"corpus"},{"id":"qt-07","theme":"quotidien","type":"mot","fr":"argent","cr":"lajan","source":"corpus"},{"id":"qt-08","theme":"quotidien","type":"mot","fr":"content","cr":"kontan","fr_f":"contente","exemple_cr":"Man kontan.","exemple_fr":"Je suis content.","source":"corpus"},{"id":"qt-09","theme":"quotidien","type":"mot","fr":"fatigué","cr":"las","fr_f":"fatiguée","exemple_cr":"Man las.","exemple_fr":"Je suis fatigué.","source":"Confiant"},{"id":"qt-10","theme":"quotidien","type":"mot","fr":"j’ai faim","cr":"Man fen","source":"président"},{"id":"qt-11","theme":"quotidien","type":"mot","fr":"j’ai soif","cr":"Man swèf","source":"président"},{"id":"qt-12","theme":"quotidien","type":"mot","fr":"chaud","cr":"cho","source":"corpus"},{"id":"qt-13","theme":"quotidien","type":"mot","fr":"froid","cr":"frèt","source":"Confiant"},{"id":"qt-14","theme":"quotidien","type":"mot","fr":"se baigner, se laver","cr":"benyen","source":"corpus"},{"id":"qt-15","theme":"quotidien","type":"mot","fr":"se lever, lever","cr":"lévé","source":"corpus"},{"id":"qt-16","theme":"quotidien","type":"mot","fr":"demain","cr":"dèmen","source":"corpus"},{"id":"qt-17","theme":"quotidien","type":"mot","fr":"beaucoup","cr":"anlo","note":"Plus martiniquais que « onlo » (guadeloupéen).","source":"Confiant"},{"id":"qt-18","theme":"quotidien","type":"mot","fr":"ami","cr":"zanmi","fr_f":"amie","source":"Confiant"},{"id":"qt-19","theme":"quotidien","type":"mot","fr":"enfant","cr":"yich","note":"On dit aussi « timanmay ».","source":"Confiant"},{"id":"qt-20","theme":"quotidien","type":"mot","fr":"maman","cr":"manman","source":"corpus"},{"id":"mr-01","theme":"marche-restaurant","type":"mot","fr":"marché","cr":"mawché","source":"Confiant"},{"id":"mr-02","theme":"marche-restaurant","type":"mot","fr":"marchande (de fruits et légumes)","cr":"machann","source":"Confiant"},{"id":"mr-03","theme":"marche-restaurant","type":"mot","fr":"riz","cr":"diri","source":"Confiant"},{"id":"mr-04","theme":"marche-restaurant","type":"mot","fr":"poisson","cr":"pwason","source":"corpus"},{"id":"mr-05","theme":"marche-restaurant","type":"mot","fr":"pain","cr":"pen","source":"corpus"},{"id":"mr-06","theme":"marche-restaurant","type":"mot","fr":"viande","cr":"viann","source":"corpus"},{"id":"mr-07","theme":"marche-restaurant","type":"mot","fr":"eau","cr":"dlo","source":"corpus"},{"id":"mr-08","theme":"marche-restaurant","type":"mot","fr":"canne à sucre","cr":"kann","source":"Confiant"},{"id":"mr-09","theme":"marche-restaurant","type":"mot","fr":"accras (beignets de morue)","cr":"akra","source":"Confiant"},{"id":"mr-10","theme":"marche-restaurant","type":"mot","fr":"rhum","cr":"wonm","source":"Confiant"},{"id":"mr-11","theme":"marche-restaurant","type":"mot","fr":"ti-punch (rhum, citron vert, sucre de canne)","cr":"ti-ponch","note":"Le verre de l’apéritif martiniquais.","source":"président"},{"id":"mr-12","theme":"marche-restaurant","type":"expression","fr":"combien ça coûte ?","cr":"Konbien sa ka kouté ?","source":"président"},{"id":"mr-13","theme":"marche-restaurant","type":"expression","fr":"c’est cher","cr":"Sa chè","source":"président"},{"id":"mr-14","theme":"marche-restaurant","type":"mot","fr":"table","cr":"tab","source":"corpus"},{"id":"mr-15","theme":"marche-restaurant","type":"expression","fr":"c’est bon !","cr":"Sa bon !","source":"président","variantes":["i bon !"]},{"id":"mr-16","theme":"marche-restaurant","type":"expression","fr":"bon appétit","cr":"Bon apeti","source":"président"},{"id":"mr-17","theme":"marche-restaurant","type":"mot","fr":"fruit","cr":"fwi","source":"corpus"},{"id":"mr-18","theme":"marche-restaurant","type":"mot","fr":"calebasse","cr":"kalbas","source":"Confiant"},{"id":"mr-19","theme":"marche-restaurant","type":"mot","fr":"calalou (plat créole)","cr":"kalalou","source":"Confiant"},{"id":"mr-20","theme":"marche-restaurant","type":"mot","fr":"boudin","cr":"bouden","note":"Le même mot veut aussi dire « ventre ».","source":"Confiant"},{"id":"pt-01","theme":"plage-transport","type":"mot","fr":"plage","cr":"plaj","source":"corpus"},{"id":"pt-02","theme":"plage-transport","type":"mot","fr":"mer","cr":"lanmè","source":"corpus"},{"id":"pt-03","theme":"plage-transport","type":"mot","fr":"sable","cr":"sab","source":"corpus"},{"id":"pt-04","theme":"plage-transport","type":"mot","fr":"soleil","cr":"solèy","source":"corpus"},{"id":"pt-05","theme":"plage-transport","type":"mot","fr":"vague","cr":"vag","source":"corpus"},{"id":"pt-06","theme":"plage-transport","type":"mot","fr":"nager","cr":"najé","source":"corpus"},{"id":"pt-07","theme":"plage-transport","type":"mot","fr":"bateau","cr":"bato","source":"corpus"},{"id":"pt-08","theme":"plage-transport","type":"mot","fr":"voiture","cr":"loto","source":"Confiant"},{"id":"pt-09","theme":"plage-transport","type":"mot","fr":"bus","cr":"bis","source":"corpus"},{"id":"pt-10","theme":"plage-transport","type":"mot","fr":"rue","cr":"lari","note":"« Chimen » = chemin, voie.","source":"président"},{"id":"pt-20","theme":"plage-transport","type":"mot","fr":"route","cr":"larout","source":"président"},{"id":"pt-11","theme":"plage-transport","type":"mot","fr":"rue","cr":"lari","source":"Confiant"},{"id":"pt-12","theme":"plage-transport","type":"mot","fr":"colline, montagne","cr":"mòn","source":"Confiant"},{"id":"pt-13","theme":"plage-transport","type":"mot","fr":"voyage","cr":"vwayaj","source":"corpus"},{"id":"pt-14","theme":"plage-transport","type":"mot","fr":"avion","cr":"avyon","source":"président"},{"id":"pt-15","theme":"plage-transport","type":"mot","fr":"taxi","cr":"taksi","source":"président"},{"id":"pt-16","theme":"plage-transport","type":"mot","fr":"aller","cr":"alé","source":"corpus"},{"id":"pt-17","theme":"plage-transport","type":"mot","fr":"marcher","cr":"maché","source":"Confiant"},{"id":"pt-18","theme":"plage-transport","type":"mot","fr":"conduire","cr":"kondui","source":"corpus"},{"id":"pt-19","theme":"plage-transport","type":"expression","fr":"attention !","cr":"Prangad !","note":"Confiant écrit « pengad ».","source":"corpus"},{"id":"fm-01","theme":"fetes-musique","type":"mot","fr":"fête","cr":"fèt","source":"corpus"},{"id":"fm-02","theme":"fetes-musique","type":"mot","fr":"musique","cr":"mizik","source":"corpus"},{"id":"fm-03","theme":"fetes-musique","type":"mot","fr":"chanter","cr":"chanté","source":"corpus"},{"id":"fm-04","theme":"fetes-musique","type":"mot","fr":"danser","cr":"dansé","source":"corpus"},{"id":"fm-05","theme":"fetes-musique","type":"mot","fr":"tambour","cr":"tanbou","source":"Confiant"},{"id":"fm-06","theme":"fetes-musique","type":"mot","fr":"bèlè (danse traditionnelle d’origine africaine)","cr":"bèlè","note":"Danse et tambour martiniquais.","source":"Confiant"},{"id":"fm-07","theme":"fetes-musique","type":"mot","fr":"diable rouge (personnage du carnaval)","cr":"djab wouj","note":"« Djab » = diable (Confiant).","source":"président"},{"id":"fm-08","theme":"fetes-musique","type":"mot","fr":"masque","cr":"mas","source":"Confiant"},{"id":"fm-09","theme":"fetes-musique","type":"mot","fr":"carnaval","cr":"kannaval","source":"président"},{"id":"fm-10","theme":"fetes-musique","type":"mot","fr":"Vaval, roi du carnaval","cr":"Vaval","note":"On le brûle le mercredi des Cendres.","source":"président"},{"id":"fm-11","theme":"fetes-musique","type":"mot","fr":"vidé (défilé dansant du carnaval)","cr":"vidé","source":"président"},{"id":"fm-12","theme":"fetes-musique","type":"mot","fr":"Noël","cr":"Nwèl","source":"président"},{"id":"fm-13","theme":"fetes-musique","type":"expression","fr":"chanter Noël (veillées de Noël)","cr":"chanté Nwèl","source":"président"},{"id":"fm-14","theme":"fetes-musique","type":"expression","fr":"dansons !","cr":"Annou dansé !","source":"président"},{"id":"fm-15","theme":"fetes-musique","type":"expression","fr":"chantons !","cr":"Annou chanté !","source":"corpus"},{"id":"fm-16","theme":"fetes-musique","type":"mot","fr":"joie","cr":"lajwa","source":"corpus"},{"id":"fm-17","theme":"fetes-musique","type":"mot","fr":"mariage","cr":"mariyaj","source":"corpus"},{"id":"fm-18","theme":"fetes-musique","type":"mot","fr":"biguine","cr":"bigin","note":"Musique et danse nées en Martinique.","source":"président"},{"id":"fm-19","theme":"fetes-musique","type":"expression","fr":"bravo !","cr":"Bravo !","source":"président"},{"id":"ep-01","theme":"expressions-proverbes","type":"expression","fr":"voici, voilà","cr":"mi","source":"Confiant"},{"id":"ep-02","theme":"expressions-proverbes","type":"expression","fr":"quand même","cr":"kanmenm","source":"Confiant"},{"id":"ep-03","theme":"expressions-proverbes","type":"expression","fr":"c’est-à-dire","cr":"sa lé di","source":"glossaire"},{"id":"ep-04","theme":"expressions-proverbes","type":"expression","fr":"la coupe est pleine","cr":"dlo dépasé farin","note":"Littéralement : l’eau a traversé la farine.","source":"Confiant"},{"id":"ep-05","theme":"expressions-proverbes","type":"expression","fr":"advienne que pourra !","cr":"Sa ki fet fet !","source":"Confiant"},{"id":"ep-06","theme":"expressions-proverbes","type":"expression","fr":"chapeau bas !","cr":"Misié-a !","source":"Confiant"},{"id":"ep-07","theme":"expressions-proverbes","type":"expression","fr":"ouah ! (étonnement admiratif)","cr":"Jé !","source":"Confiant"},{"id":"ep-08","theme":"expressions-proverbes","type":"proverbe","fr":"Beaucoup de bruit pour rien.","cr":"Gran mouvman, ti kout baton","mot_cache":"baton","source":"Confiant"},{"id":"ep-09","theme":"expressions-proverbes","type":"proverbe","fr":"Il reste encore du travail : une difficulté en cache une autre.","cr":"Sé dèyè mòn ki ni mòn","mot_cache":"mòn","note":"Littéralement : derrière les collines, il y a encore des collines.","source":"Confiant"},{"id":"ep-10","theme":"expressions-proverbes","type":"proverbe","fr":"Loin des yeux, loin du cœur.","cr":"Jaden lwen, gonbo gaté","mot_cache":"gonbo","note":"Quand le jardin est loin, le gombo se gâte.","source":"Confiant"},{"id":"ep-11","theme":"expressions-proverbes","type":"proverbe","fr":"C’est dans l’embarras qu’on reconnaît ses vrais amis.","cr":"Sé lè ou angajé ou konnet zanmi’w","mot_cache":"zanmi","source":"Confiant"},{"id":"ep-12","theme":"expressions-proverbes","type":"proverbe","fr":"Les petits cadeaux entretiennent l’amitié.","cr":"Ti bol alé, ti bol vini, lanmitié rété","mot_cache":"lanmitié","source":"Confiant"},{"id":"ep-13","theme":"expressions-proverbes","type":"proverbe","fr":"L’argent ne fait pas le bonheur.","cr":"Bonnè épi lajan pa ka alé ansanm","mot_cache":"lajan","source":"Confiant"},{"id":"ep-14","theme":"expressions-proverbes","type":"proverbe","fr":"Les menteurs ont la mémoire courte.","cr":"Mantè pa ni mémwè","mot_cache":"mémwè","source":"Confiant"},{"id":"ep-15","theme":"expressions-proverbes","type":"proverbe","fr":"La maladie arrive à cheval mais repart à pied.","cr":"Maladi ka vini a chouval, i ka pati a pié","mot_cache":"chouval","source":"Confiant"},{"id":"ep-16","theme":"expressions-proverbes","type":"proverbe","fr":"Chaque chose en son temps.","cr":"An tan pou chasè, an tan pou zibié","mot_cache":"zibié","source":"Confiant"},{"id":"ep-17","theme":"expressions-proverbes","type":"proverbe","fr":"Il faut être débrouillard dans la vie.","cr":"Kabrit ki pa malen pa gra","mot_cache":"Kabrit","source":"Confiant"},{"id":"ep-18","theme":"expressions-proverbes","type":"proverbe","fr":"Parler n’engage à rien.","cr":"Pawol an bouch pa chaj","mot_cache":"bouch","source":"Confiant"},{"id":"ep-19","theme":"expressions-proverbes","type":"proverbe","fr":"Les petits ruisseaux font les grandes rivières.","cr":"Sé grèn diri ka plen sak diri","mot_cache":"diri","note":"Recueilli par AZ Martinique ; graphie non vérifiée.","source":"président"},{"id":"ep-20","theme":"expressions-proverbes","type":"proverbe","fr":"Rien ne sert de courir.","cr":"Tro présé pa ka fè jou ouvè","mot_cache":"présé","note":"Recueilli par AZ Martinique ; graphie non vérifiée.","source":"président"},{"id":"fa-01","theme":"faux-amis","type":"faux-ami","fr":"veut, vouloir","cr":"lé","piege":"les","source":"corpus"},{"id":"fa-02","theme":"faux-amis","type":"faux-ami","fr":"avoir ; il y a","cr":"ni","piege":"ni… ni…","source":"corpus"},{"id":"fa-03","theme":"faux-amis","type":"faux-ami","fr":"peut, pouvoir","cr":"pé","piege":"la paix","source":"corpus"},{"id":"fa-04","theme":"faux-amis","type":"faux-ami","fr":"marque du passé (« il était »)","cr":"té","piege":"le thé","source":"corpus"},{"id":"fa-05","theme":"faux-amis","type":"faux-ami","fr":"parce que","cr":"pas","piege":"la négation « pas »","source":"corpus"},{"id":"fa-06","theme":"faux-amis","type":"faux-ami","fr":"donner","cr":"ba","piege":"bas","source":"corpus"},{"id":"fa-07","theme":"faux-amis","type":"faux-ami","fr":"tu, toi, ton","cr":"ou","piege":"ou (choix entre deux)","source":"corpus"},{"id":"fa-08","theme":"faux-amis","type":"faux-ami","fr":"poisson","cr":"pwason","piege":"le poison","source":"corpus"},{"id":"fa-09","theme":"faux-amis","type":"faux-ami","fr":"la mer","cr":"lanmè","piege":"la mère","note":"La mère se dit « manman ».","source":"corpus"},{"id":"fa-10","theme":"faux-amis","type":"faux-ami","fr":"quand ; l’heure","cr":"lè","piege":"l’air","source":"corpus"},{"id":"fa-11","theme":"faux-amis","type":"faux-ami","fr":"enlever, retirer","cr":"tiré","piege":"tirer","source":"corpus"},{"id":"fa-12","theme":"faux-amis","type":"faux-ami","fr":"réparer, arranger, remettre en état","cr":"ranjé","piege":"ranger (mettre en ordre)","source":"corpus"},{"id":"fa-13","theme":"faux-amis","type":"faux-ami","fr":"blesser, faire mal","cr":"fwasé","piege":"froisser","source":"corpus"},{"id":"fa-14","theme":"faux-amis","type":"faux-ami","fr":"rester, habiter","cr":"rété","piege":"arrêter","source":"corpus"},{"id":"fa-15","theme":"faux-amis","type":"faux-ami","fr":"devoir (sûrement) : « ou dwèt… » = tu dois sûrement…","cr":"dwèt","piege":"le doigt","source":"corpus"},{"id":"fa-16","theme":"faux-amis","type":"faux-ami","fr":"chose","cr":"bagay","piege":"le bagage","source":"corpus"},{"id":"fa-17","theme":"faux-amis","type":"faux-ami","fr":"ventre (et aussi boudin)","cr":"bouden","piege":"le boudin seulement","source":"Confiant"},{"id":"fa-18","theme":"faux-amis","type":"faux-ami","fr":"chéri, amoureux","cr":"doudou","piege":"le doudou de bébé","fr_f":"chérie, amoureuse","source":"Confiant"},{"id":"fa-19","theme":"faux-amis","type":"faux-ami","fr":"laisser (et aussi quitter)","cr":"kité","piege":"quitter seulement","source":"Confiant"},{"id":"fa-20","theme":"faux-amis","type":"faux-ami","fr":"regarder (et aussi garder)","cr":"gadé","piege":"garder seulement","source":"Confiant"},{"id":"fl-01","theme":"fruits-legumes","type":"mot","fr":"mangue (petite mangue)","cr":"mango","note":"Chez Confiant : mangue de petite taille, le « mangot ».","illustration":"mangue","source":"Confiant"},{"id":"fl-02","theme":"fruits-legumes","type":"mot","fr":"fruit à pain","cr":"fwiyapen","note":"Variante : fouyapen.","illustration":"fruit-a-pain","source":"président"},{"id":"fl-03","theme":"fruits-legumes","type":"mot","fr":"christophine (chayotte)","cr":"kristofin","illustration":"christophine","source":"Confiant"},{"id":"fl-04","theme":"fruits-legumes","type":"mot","fr":"igname","cr":"yanm","illustration":"igname","source":"président"},{"id":"fl-05","theme":"fruits-legumes","type":"mot","fr":"banane","cr":"bannann","illustration":"banane","source":"Confiant"},{"id":"fl-06","theme":"fruits-legumes","type":"mot","fr":"banane dessert","cr":"fig","note":"Ne pas confondre avec la figue.","illustration":"banane-dessert","source":"Confiant"},{"id":"fl-07","theme":"fruits-legumes","type":"mot","fr":"corossol","cr":"kowosòl","illustration":"corossol","source":"président"},{"id":"fl-08","theme":"fruits-legumes","type":"mot","fr":"goyave","cr":"griyav","illustration":"goyave","source":"Confiant"},{"id":"fl-09","theme":"fruits-legumes","type":"mot","fr":"maracudja (fruit de la passion)","cr":"marakoudja","illustration":"maracudja","source":"Confiant"},{"id":"fl-10","theme":"fruits-legumes","type":"mot","fr":"noix de coco","cr":"koko","illustration":"coco","source":"Confiant"},{"id":"fl-11","theme":"fruits-legumes","type":"mot","fr":"piment","cr":"piman","illustration":"piment","source":"président"},{"id":"fl-12","theme":"fruits-legumes","type":"mot","fr":"orange","cr":"zoranj","illustration":"orange","source":"Confiant"},{"id":"fl-13","theme":"fruits-legumes","type":"mot","fr":"ananas","cr":"zannanna","illustration":"ananas","source":"président"},{"id":"fl-14","theme":"fruits-legumes","type":"mot","fr":"citron","cr":"sitwon","illustration":"citron","source":"président"},{"id":"fl-15","theme":"fruits-legumes","type":"mot","fr":"tomate","cr":"tomat","illustration":"tomate","source":"président"},{"id":"fl-16","theme":"fruits-legumes","type":"mot","fr":"dachine (chou de Chine)","cr":"dachin","illustration":"dachine","source":"Confiant"},{"id":"fl-17","theme":"fruits-legumes","type":"mot","fr":"patate douce","cr":"patat","illustration":"patate-douce","source":"président"},{"id":"fl-18","theme":"fruits-legumes","type":"mot","fr":"avocat","cr":"zaboka","illustration":"avocat","source":"président"},{"id":"fl-19","theme":"fruits-legumes","type":"mot","fr":"papaye","cr":"papay","illustration":"papaye","source":"président"},{"id":"fl-20","theme":"fruits-legumes","type":"mot","fr":"cachiman (variété d’anone)","cr":"kachiman","illustration":"cachiman","source":"Confiant"},{"id":"an-01","theme":"animaux","type":"mot","fr":"chien","cr":"chien","illustration":"chien","source":"Confiant"},{"id":"an-02","theme":"animaux","type":"mot","fr":"chat","cr":"chat","illustration":"chat","source":"Confiant"},{"id":"an-03","theme":"animaux","type":"mot","fr":"poule","cr":"poul","illustration":"poule","source":"président"},{"id":"an-04","theme":"animaux","type":"mot","fr":"coq","cr":"kok","illustration":"coq","source":"Confiant"},{"id":"an-05","theme":"animaux","type":"mot","fr":"cochon","cr":"kochon","illustration":"cochon","source":"Confiant"},{"id":"an-06","theme":"animaux","type":"mot","fr":"bœuf","cr":"bèf","illustration":"boeuf","source":"Confiant"},{"id":"an-07","theme":"animaux","type":"mot","fr":"cabri, chèvre","cr":"kabrit","illustration":"cabri","source":"Confiant"},{"id":"an-08","theme":"animaux","type":"mot","fr":"mouton","cr":"mouton","illustration":"mouton","source":"Confiant"},{"id":"an-09","theme":"animaux","type":"mot","fr":"cheval","cr":"chouval","illustration":"cheval","source":"Confiant"},{"id":"an-10","theme":"animaux","type":"mot","fr":"canard","cr":"kanna","illustration":"canard","source":"Confiant"},{"id":"an-11","theme":"animaux","type":"mot","fr":"crabe (de terre)","cr":"krab","illustration":"crabe","source":"Confiant"},{"id":"an-12","theme":"animaux","type":"mot","fr":"mangouste","cr":"mangous","illustration":"mangouste","source":"Confiant"},{"id":"an-13","theme":"animaux","type":"mot","fr":"colibri","cr":"kolibri","illustration":"colibri","source":"Confiant"},{"id":"an-14","theme":"animaux","type":"mot","fr":"gecko (mabouya)","cr":"mabouya","note":"Mot d’origine caraïbe.","illustration":"mabouya","source":"Confiant"},{"id":"an-15","theme":"animaux","type":"mot","fr":"iguane","cr":"léza","illustration":"iguane","source":"président"},{"id":"an-16","theme":"animaux","type":"mot","fr":"anoli (petit lézard)","cr":"zandoli","illustration":"anoli","source":"président"},{"id":"an-17","theme":"animaux","type":"mot","fr":"poisson","cr":"pwason","illustration":"poisson","source":"corpus"},{"id":"an-18","theme":"animaux","type":"mot","fr":"oiseau","cr":"zwézo","illustration":"oiseau","source":"corpus"},{"id":"an-19","theme":"animaux","type":"mot","fr":"fourmi","cr":"fonmi","illustration":"fourmi","source":"Confiant"},{"id":"an-20","theme":"animaux","type":"mot","fr":"rat","cr":"rat","illustration":"rat","source":"Confiant"},{"id":"gu-01","theme":"guides","type":"replique","fr":"Bonjour {prenom} ! Content de te voir !","cr":"Bonjou {prenom} ! kontan wè'w !","guide":"les-deux","source":"président"},{"id":"gu-02","theme":"guides","type":"replique","fr":"Bonsoir {prenom} !","cr":"Bèl bonswè {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-03","theme":"guides","type":"replique","fr":"Je suis content de te voir, {prenom}.","cr":"Man kontan wè’w, {prenom}.","guide":"homme","source":"président"},{"id":"gu-04","theme":"guides","type":"replique","fr":"Je suis contente de te voir, {prenom}.","cr":"Man kontan wè’w, {prenom}.","guide":"femme","source":"président"},{"id":"gu-05","theme":"guides","type":"replique","fr":"Comment ça va, {prenom} ?","cr":"Sa ou fè, {prenom} ?","guide":"les-deux","source":"Confiant"},{"id":"gu-06","theme":"guides","type":"replique","fr":"On commence, {prenom} !","cr":"Annou koumansé, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-07","theme":"guides","type":"replique","fr":"Prêt, {prenom} ?","cr":"Ou paré, {prenom} ?","guide":"les-deux","fr_f":"Prête, {prenom} ?","source":"président"},{"id":"gu-08","theme":"guides","type":"replique","fr":"Écoute bien, {prenom}.","cr":"Kouté bien, {prenom}.","guide":"les-deux","source":"président"},{"id":"gu-09","theme":"guides","type":"replique","fr":"Regarde bien, {prenom}.","cr":"Gadé bien, {prenom}.","guide":"les-deux","source":"président"},{"id":"gu-10","theme":"guides","type":"replique","fr":"Bravo, {prenom} !","cr":"Bravo, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-11","theme":"guides","type":"replique","fr":"C’est bien, {prenom} !","cr":"I bèl, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-12","theme":"guides","type":"replique","fr":"Tu es très fort, {prenom} !","cr":"Ou bon toubannman, {prenom} !","guide":"les-deux","fr_f":"Tu es très forte, {prenom} !","source":"président"},{"id":"gu-13","theme":"guides","type":"replique","fr":"Voilà, {prenom} !","cr":"Mi sé sa, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-14","theme":"guides","type":"replique","fr":"Tu y es presque, {prenom} !","cr":"Ou tou pré, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-15","theme":"guides","type":"replique","fr":"Essaie encore.","cr":"Éséyé ankò.","guide":"les-deux","source":"président"},{"id":"gu-16","theme":"guides","type":"replique","fr":"N’aie pas peur, {prenom}.","cr":"Pa pè, {prenom}.","guide":"les-deux","source":"corpus"},{"id":"gu-17","theme":"guides","type":"replique","fr":"Pas de problème, {prenom}.","cr":"Pa ni pwoblèm, {prenom}.","guide":"les-deux","source":"corpus"},{"id":"gu-18","theme":"guides","type":"replique","fr":"Tiens bon, {prenom} !","cr":"Tjenbé rèd, {prenom} !","guide":"les-deux","source":"glossaire"},{"id":"gu-19","theme":"guides","type":"replique","fr":"Ne lâche pas, {prenom} !","cr":"Pa ladjé, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-20","theme":"guides","type":"replique","fr":"C’est comme ça qu’on apprend.","cr":"Sé konsa nou ka aprann.","guide":"les-deux","source":"président"},{"id":"gu-21","theme":"guides","type":"replique","fr":"Tu progresses, {prenom} !","cr":"Ou ka pwogrésé, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-22","theme":"guides","type":"replique","fr":"On recommence !","cr":"Annou rikoumansé !","guide":"les-deux","source":"président"},{"id":"gu-23","theme":"guides","type":"replique","fr":"Tu as fini, {prenom} ! Félicitations !","cr":"Ou fini, {prenom} ! Félisitasion !","guide":"les-deux","source":"corpus"},{"id":"gu-24","theme":"guides","type":"replique","fr":"On a fini pour aujourd’hui, {prenom}.","cr":"Nou fini jodi-a, {prenom}.","guide":"les-deux","source":"président"},{"id":"gu-25","theme":"guides","type":"replique","fr":"Merci, {prenom} !","cr":"Mèsi, {prenom} !","guide":"les-deux","source":"corpus"},{"id":"gu-26","theme":"guides","type":"replique","fr":"À demain, {prenom} !","cr":"A dèmen, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-27","theme":"guides","type":"replique","fr":"À tout à l’heure, {prenom} !","cr":"A talè, {prenom} !","guide":"les-deux","source":"président"},{"id":"gu-28","theme":"guides","type":"replique","fr":"Au revoir, {prenom} !","cr":"An lòt solèy, {prenom} !","guide":"les-deux","source":"président"}]/*FIN-DATA*/;
+
+  /* ---------- PERSONNAGES — repris tels quels de la maquette (Léa) ---------- */
+  /* ---------- PERSONNAGES : gabarit SVG partagé (viewBox 0 0 140 160), style 3D doux ---------- */
+  var INK='#1B1411';
+  function eye(cx,iris){
+    return '<ellipse cx="'+cx+'" cy="73" rx="11.5" ry="13" fill="url(#gSclera)"/>'
+      +'<ellipse cx="'+(cx+1)+'" cy="75" rx="8.3" ry="9.3" fill="url(#'+iris+')"/>'
+      +'<circle cx="'+(cx+1)+'" cy="76" r="4.4" fill="#120A06"/>'
+      +'<circle cx="'+(cx-2.6)+'" cy="70.6" r="3" fill="#fff"/><circle cx="'+(cx+4.2)+'" cy="79.6" r="1.4" fill="#fff" opacity=".9"/>';
+  }
+  function face3d(iris,hair,lashes){
+    var lid='#3A2214';
+    return ''
+    +'<circle cx="43" cy="90" r="10" fill="url(#gBlush)"/><circle cx="97" cy="90" r="10" fill="url(#gBlush)"/>'
+    +'<g class="b-n" fill="none" stroke="'+hair+'" stroke-width="3.4" stroke-linecap="round"><path d="M42 55Q52 50 62 54"/><path d="M78 54Q88 50 98 55"/></g>'
+    +'<g class="b-e" fill="none" stroke="'+hair+'" stroke-width="3.4" stroke-linecap="round"><path d="M42 56Q52 53.5 62 50.5"/><path d="M78 50.5Q88 53.5 98 56"/></g>'
+    +'<g class="g-eyes e-o">'+eye(54,iris)+eye(86,iris)
+      +'<path d="M42.5 67Q54 58.5 65.5 67M74.5 67Q86 58.5 97.5 67" fill="none" stroke="'+lid+'" stroke-width="2.6" stroke-linecap="round"/>'
+      +(lashes?'<path d="M43 66.5 38.5 63.5M45.5 63.5 42.5 59.5M97 66.5l4.5-3M94.5 63.5l3-4" fill="none" stroke="'+lid+'" stroke-width="2.2" stroke-linecap="round"/>':'')
+    +'</g>'
+    +'<g class="e-h" fill="none" stroke="'+lid+'" stroke-width="3.6" stroke-linecap="round"><path d="M44 76Q54 65 64 76"/><path d="M76 76Q86 65 96 76"/>'
+      +(lashes?'<path d="M44 75l-4-2M96 75l4-2" stroke-width="2.2"/>':'')+'</g>'
+    +'<ellipse cx="70" cy="85" rx="5" ry="3.6" fill="#3A1F12" opacity=".35"/><circle cx="68.4" cy="83.6" r="1.3" fill="#fff" opacity=".45"/>';
+  }
+  function mouths3d(){
+    return ''
+    +'<path class="m-n" d="M58 93Q70 104 82 93" fill="none" stroke="#4A1E14" stroke-width="3.2" stroke-linecap="round"/>'
+    +'<g class="m-j"><path d="M55.5 92Q70 112 84.5 92Z" fill="#5A1622"/><path d="M58 93Q70 96 82 93L80.5 96.5Q70 99 59.5 96.5Z" fill="#fff"/><ellipse cx="70" cy="103.5" rx="7.5" ry="4" fill="#F0476B"/></g>'
+    +'<path class="m-e" d="M60 95.5Q70 101 80 95.5" fill="none" stroke="#4A1E14" stroke-width="3.2" stroke-linecap="round"/>'
+    +'<ellipse class="m-t" cx="70" cy="96" rx="6.5" ry="5.5" fill="#5A1622"/>';
+  }
+  function hand3d(skin,sleeve){
+    return '<g class="g-hand"><path d="M100 140Q110 120 113 102" fill="none" stroke="'+sleeve+'" stroke-width="13" stroke-linecap="round"/>'
+      +'<circle cx="114" cy="95" r="9.5" fill="url(#'+skin+')"/></g>';
+  }
+  /* Madras : un tissu = le motif + l'ombre de drapé par-dessus */
+  function madras(d){return '<path d="'+d+'" fill="url(#pMadras)"/><path d="'+d+'" fill="url(#gDrape)"/>';}
+  var WR='<g fill="none" stroke="#3A2214" stroke-linecap="round" stroke-width="1.8" opacity=".38"><path d="M39 69l-6-2.5M39 75l-6 1M101 69l6-2.5M101 75l6 1"/><path d="M47 86q-3.5 6 .5 11.5M93 86q3.5 6-.5 11.5"/><path d="M46 87q8 2.5 16 0M78 87q8 2.5 16 0"/></g>';
+  /* MAMIE — tèt maré en madras, trois pointes nouées sur le côté ; créoles d'or ; collier grain-d'or ; blouse à col festonné */
+  function guideF(){
+    return '<svg class="g-svg" viewBox="0 0 140 160" aria-hidden="true"><circle class="g-halo" cx="70" cy="80" r="70" fill="url(#gHaloF)"/><g class="g-body">'
+      +'<rect x="62" y="100" width="16" height="20" rx="6" fill="#6A3F27"/>'
+      +'<path d="M30 161C30 130 46 115 70 115S110 130 110 161Z" fill="url(#gBlouse)"/>'
+      +'<path d="M57 116Q70 128 83 116" fill="#6A3F27"/>'
+      +'<g fill="#FFFFFF"><circle cx="55" cy="117" r="3.4"/><circle cx="60" cy="122" r="3.4"/><circle cx="66" cy="125" r="3.4"/><circle cx="74" cy="125" r="3.4"/><circle cx="80" cy="122" r="3.4"/><circle cx="85" cy="117" r="3.4"/></g>'
+      +'<path d="M58 117Q70 131 82 117" fill="none" stroke="url(#gGold)" stroke-width="3.6" stroke-linecap="round" stroke-dasharray=".1 4.6"/>'
+      +'<g class="g-head">'
+        +'<ellipse cx="28" cy="78" rx="6" ry="8" fill="#93603F"/><ellipse cx="112" cy="78" rx="6" ry="8" fill="#93603F"/>'
+        +'<circle cx="27" cy="93" r="6" fill="none" stroke="url(#gGold)" stroke-width="2.8"/><circle cx="113" cy="93" r="6" fill="none" stroke="url(#gGold)" stroke-width="2.8"/>'
+        +'<ellipse cx="70" cy="74" rx="42" ry="40" fill="url(#gSkinF)"/>'
+        +'<g fill="url(#gHairGrey)"><circle cx="31" cy="66" r="6.5"/><circle cx="109" cy="66" r="6.5"/><circle cx="34" cy="60" r="5.5"/><circle cx="106" cy="60" r="5.5"/></g>'
+        +madras('M24 64C18 30 38 6 70 6S122 30 116 64C108 50 92 44 70 44S32 50 24 64Z')
+        +'<path d="M34 40Q60 22 100 30M30 52Q62 36 108 46" fill="none" stroke="#1B1411" stroke-width="2" opacity=".22" stroke-linecap="round"/>'
+        +madras('M24 61C40 43 100 43 116 61L113 69C98 53 42 53 27 69Z')
+        +'<path d="M27 68C42 53 98 53 113 68" fill="none" stroke="#FFF7EC" stroke-width="1.5" opacity=".55"/>'
+        +madras('M80 17 84 0 95 14Z')+madras('M88 16 107 3 104 23Z')+madras('M94 25 117 18 106 33Z')
+        +madras('M84 20a9 8 0 1 0 18 0a9 8 0 1 0-18 0Z')
+        +face3d('gIrisF','#CFC6BC',true)+WR+mouths3d()
+      +'</g>'
+      +'<g class="g-hand"><path d="M100 140Q110 120 113 102" fill="none" stroke="#F7E3E8" stroke-width="13" stroke-linecap="round"/>'
+        +'<circle cx="114" cy="95" r="9.5" fill="url(#gSkinF)"/>'+madras('M108 88 118 74 131 82 121 96Z')+'</g>'
+      +'</g></svg>';
+  }
+  /* PAPI — foulard madras noué au cou, pochette assortie ; chemise blanche ; cheveux blancs, moustache, lunettes */
+  function guideM(){
+    return '<svg class="g-svg" viewBox="0 0 140 160" aria-hidden="true"><circle class="g-halo" cx="70" cy="80" r="70" fill="url(#gHaloM)"/><g class="g-body">'
+      +'<rect x="61" y="100" width="18" height="20" rx="6" fill="#523220"/>'
+      +'<path d="M28 161C28 129 46 114 70 114S112 129 112 161Z" fill="url(#gShirtW)"/>'
+      +'<path d="M54 113L61 129L70 119L79 129L86 113" fill="#FFFFFF" stroke="#CDBB9D" stroke-width="1.2" stroke-linejoin="round"/>'
+      +'<circle cx="70" cy="140" r="2" fill="#B8A584"/><circle cx="70" cy="152" r="2" fill="#B8A584"/>'
+      +madras('M54 113Q70 124 86 113L83 121Q70 131 57 121Z')
+      +madras('M67 126 60 145 71 135Z')+madras('M73 126 81 145 69 135Z')
+      +madras('M64.5 125a5.5 5 0 1 0 11 0a5.5 5 0 1 0-11 0Z')
+      +madras('M90 137l4-7 3 5 3-5 2 7Z')+'<path d="M89 137h14" stroke="#CDBB9D" stroke-width="1.6"/>'
+      +'<g class="g-head">'
+        +'<ellipse cx="28.5" cy="78" rx="6" ry="8" fill="#7A4E35"/><ellipse cx="111.5" cy="78" rx="6" ry="8" fill="#7A4E35"/>'
+        +'<ellipse cx="70" cy="74" rx="41.5" ry="40" fill="url(#gSkinM)"/>'
+        +'<path d="M29 80C25 60 31 46 43 39C38 50 36 64 39 82Z" fill="url(#gHairGrey)"/><path d="M111 80C115 60 109 46 97 39C102 50 104 64 101 82Z" fill="url(#gHairGrey)"/>'
+        +'<path d="M54 40Q68 33 84 37" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".3"/>'
+        +'<path d="M54 47Q70 43 86 47M58 53Q70 50 82 53" fill="none" stroke="#2E1A10" stroke-width="1.8" stroke-linecap="round" opacity=".32"/>'
+        +face3d('gIrisM','#E2DCD4',false)+WR+mouths3d()
+        +'<path d="M55 89Q62 83 70 87Q78 83 85 89Q78 92.5 70 90.5Q62 92.5 55 89Z" fill="url(#gHairGrey)"/>'
+        +'<g fill="#fff" fill-opacity=".1" stroke="#8A7660" stroke-width="2.8"><rect x="40" y="60" width="29" height="26" rx="12"/><rect x="71" y="60" width="29" height="26" rx="12"/></g>'
+        +'<path d="M68.5 70Q70 67.5 71.5 70M40 70 30 67M100 70l10-3" fill="none" stroke="#8A7660" stroke-width="2.6" stroke-linecap="round"/>'
+        +'<path d="M45 65q4-3 9-3M76 65q4-3 9-3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".6"/>'
+      +'</g>'+hand3d('gSkinM','#F3EBDD')+'</g></svg>';
+  }
+  function renderGuide(el){el.innerHTML=el.dataset.who==='m'?guideM():guideF();}
+
+  /* ======================================================================
+     JEU — tout le contenu linguistique vient de DATA (contenu-valide.json).
+     Le code ne contient que des libellés d'interface en français.
+     ====================================================================== */
+  var THEMES=[
+    {id:'salutations',name:'Salutations',c:'var(--c-lagon)',hex:'#12B5A9',v:'v-salut'},
+    {id:'quotidien',name:'Au quotidien',c:'var(--c-mango)',hex:'#FFB627',v:'v-case'},
+    {id:'fruits-legumes',name:'Fruits & légumes',c:'var(--c-canne)',hex:'#7CC64B',v:'v-fruits'},
+    {id:'marche-restaurant',name:'Marché & restaurant',c:'var(--c-flamboyant)',hex:'#FF6B35',v:'v-marche'},
+    {id:'animaux',name:'Animaux',c:'var(--c-ananas)',hex:'#FFD93D',v:'v-animaux'},
+    {id:'plage-transport',name:'Plage & transport',c:'var(--c-ciel)',hex:'#3BA7F5',v:'v-plage'},
+    {id:'fetes-musique',name:'Fêtes & musique',c:'var(--c-hibiscus)',hex:'#F0476B',v:'v-fete'},
+    {id:'expressions-proverbes',name:'Expressions & proverbes',c:'var(--c-bougain)',hex:'#B07CF0',v:'v-proverbe'},
+    {id:'faux-amis',name:'Faux-amis',c:'var(--c-goyave)',hex:'#FF8AA0',v:'v-fauxami'}
+  ];
+  var DAILY_GOAL=50, XP_PER=10, SESSION_LEN=10;
+  var app=document.getElementById('app');
+  var reduced=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  /* ---------- Stockage (chaque accès protégé : sans stockage, le jeu tourne quand même) ---------- */
+  var KEY='pale-kreyol-v1';
+  function blank(){return {name:'',g:'',guide:'f',xp:0,stars:{},best:{},done:{},days:[],dxp:{d:'',xp:0}};}
+  function load(){
+    var s=blank(),raw=null;
+    try{raw=localStorage.getItem(KEY);}catch(e){raw=null;}
+    if(!raw)return s;
+    try{
+      var o=JSON.parse(raw);
+      if(o&&typeof o==='object'){
+        if(typeof o.name==='string')s.name=o.name.slice(0,20);
+        if(o.g==='f'||o.g==='m')s.g=o.g;
+        if(o.guide==='f'||o.guide==='m')s.guide=o.guide;
+        if(typeof o.xp==='number'&&o.xp>=0)s.xp=Math.floor(o.xp);
+        ['stars','best','done'].forEach(function(k){if(o[k]&&typeof o[k]==='object')s[k]=o[k];});
+        if(Array.isArray(o.days))s.days=o.days.filter(function(d){return typeof d==='string'}).slice(-60);
+        if(o.dxp&&typeof o.dxp.d==='string'&&typeof o.dxp.xp==='number')s.dxp=o.dxp;
+      }
+    }catch(e){}
+    return s;
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+  var S=load();
+
+  /* ---------- Outils ---------- */
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]});}
+  function norm(s){return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[’‘`]/g,"'");}
+  function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function pad(n){return (n<10?'0':'')+n;}
+  function dayStr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function today(){return dayStr(new Date());}
+  function shiftDay(str,k){var p=str.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);d.setDate(d.getDate()+k);return dayStr(d);}
+  function frOf(e){return (S.g==='f'&&e.fr_f)?e.fr_f:e.fr;}
+  function crOf(e){return (S.g==='f'&&e.cr_f)?e.cr_f:e.cr;}
+  function hasIl(e){return !!(e&&e.illustration&&document.getElementById('il-'+e.illustration));}
+  function plate(e){return '<div class="plate"><svg aria-hidden="true"><use href="#il-'+esc(e.illustration)+'"/></svg></div>';}
+  function icon(id,cls){return '<svg class="ic'+(cls?' '+cls:'')+'" aria-hidden="true"><use href="#'+id+'"/></svg>';}
+  /* Vibration seulement après un vrai geste de l'utilisateur (sinon Chrome journalise une erreur) */
+  function vib(p){try{var ua=navigator.userActivation;if(navigator.vibrate&&(!ua||ua.isActive))navigator.vibrate(p);}catch(e){}}
+  function retrigger(el,cls){el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);}
+  /* Insère un texte contenant {prenom} : le prénom n'entre que par textContent */
+  function fill(el,text){
+    el.textContent='';
+    if(!S.name)text=String(text).replace(/,?\s*\{prenom\}/g,'');
+    String(text).split('{prenom}').forEach(function(part,i){
+      if(i>0){var s=document.createElement('span');s.className='pn';s.textContent=S.name||'…';el.appendChild(s);}
+      if(part)el.appendChild(document.createTextNode(part));
+    });
+  }
+  function refreshNames(){app.querySelectorAll('.pn').forEach(function(s){s.textContent=S.name||'…';});}
+
+  /* ---------- Répliques des guides : classées par mots-clés de leur français ---------- */
+  var SIT=[
+    ['accueil',[/^bonjour/,/^bonsoir/,/content(e)? de te voir/,/comment ca va/]],
+    ['debut',[/on commence/,/^pret/,/ecoute bien/,/regarde bien/]],
+    ['bravo',[/bravo/,/c'est bien/,/tres fort/,/^voila/,/tu progresses/]],
+    ['erreur',[/presque/,/essaie encore/,/c'est comme ca qu'on apprend/]],
+    ['encourage',[/n'aie pas peur/,/pas de probleme/,/tiens bon/,/ne lache pas/,/on recommence/]],
+    ['fin',[/tu as fini/,/fini pour/]],
+    ['aurevoir',[/^merci/,/a demain/,/a tout a l'heure/,/au revoir/]]
+  ];
+  var REP=DATA.filter(function(e){return e.type==='replique';}).map(function(e){
+    var n=norm(e.fr),sit=null;
+    for(var i=0;i<SIT.length&&!sit;i++){if(SIT[i][1].some(function(r){return r.test(n);}))sit=SIT[i][0];}
+    return {e:e,sit:sit};
+  });
+  var lastRep=null;
+  function pickRep(sit){
+    var who=S.guide==='m'?'homme':'femme',h=new Date().getHours();
+    var pool=REP.filter(function(r){
+      if(r.sit!==sit)return false;
+      if(r.e.guide&&r.e.guide!=='les-deux'&&r.e.guide!==who)return false;
+      if(sit==='accueil'){var n=norm(r.e.fr);if(h>=18&&/^bonjour/.test(n))return false;if(h<18&&/^bonsoir/.test(n))return false;}
+      return true;
+    });
+    if(!pool.length)return null;
+    var c=pool.filter(function(r){return r.e!==lastRep;});
+    var r=(c.length?c:pool)[Math.floor(Math.random()*(c.length?c:pool).length)].e;
+    lastRep=r;return r;
+  }
+  /* Accord du français dans la voix du guide : Mamie dit « Contente », « Enchantée » */
+  function voiceFr(e){
+    var t=(S.g==='f'&&e.fr_f)?e.fr_f:e.fr;
+    if(S.guide==='f'){
+      t=t.replace(/(^|[^\p{L}])([Cc])ontent(?!\p{L})/gu,'$1$2ontente')
+         .replace(/(^|[^\p{L}])([Ee])nchanté(?!\p{L})/gu,'$1$2nchantée');
+    }
+    return t;
+  }
+
+  /* ---------- Guide : gestes repris de la maquette ---------- */
+  function guideHTML(expr){return '<div class="guide" data-who="'+(S.guide==='m'?'m':'f')+'" data-expr="'+(expr||'neutral')+'"></div>';}
+  function mountGuides(root){(root||app).querySelectorAll('.guide').forEach(function(g){if(!g.firstChild)renderGuide(g);});}
+  function act(g,what){
+    if(!g)return;
+    g.classList.remove('talking','do-joy','do-nod','do-dance');void g.offsetWidth;
+    if(what==='joy'){g.dataset.expr='joy';g.classList.add('do-joy');setTimeout(function(){talk(g)},560);}
+    else if(what==='nod'){g.dataset.expr='enc';g.classList.add('do-nod');setTimeout(function(){talk(g)},760);}
+    else if(what==='dance'){g.dataset.expr='joy';g.classList.add('do-dance');setTimeout(function(){talk(g)},300);}
+    else talk(g);
+  }
+  function talk(g){g.classList.add('talking');clearTimeout(g._t);g._t=setTimeout(function(){g.classList.remove('talking')},840);}
+  function relax(g,ms){clearTimeout(g._r);g._r=setTimeout(function(){g.dataset.expr='neutral';},ms);}
+  /* Bulle : créole en grand, français dessous en petit. Sans réplique : le guide réagit sans bulle. */
+  function speak(b,kr,fr){
+    if(!b)return;
+    b.textContent='';b.classList.remove('hide');
+    var k=document.createElement('span');k.className='kr';fill(k,kr);b.appendChild(k);
+    if(fr){var f=document.createElement('span');f.className='frg';fill(f,fr);b.appendChild(f);}
+    b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');
+  }
+  function sayRep(b,sit){var r=pickRep(sit);if(!r)return false;speak(b,r.cr,voiceFr(r));return true;}
+  function askQ(b,html){b.classList.remove('hide');b.innerHTML='<span class="q">'+html+'</span>';b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');}
+
+  /* ---------- Effets (maquette) ---------- */
+  var COLORS=['#12B5A9','#FFB627','#FF6B35','#3BA7F5','#F0476B','#B07CF0','#7CC64B','#FFD93D','#FF8AA0'];
+  function confetti(el,n){
+    if(reduced||!el)return;
+    var s=app.getBoundingClientRect(),r=el.getBoundingClientRect();
+    for(var i=0;i<n;i++){
+      var c=document.createElement('span');c.className='confetti';c.setAttribute('aria-hidden','true');
+      c.style.left=(r.left-s.left+r.width/2)+'px';c.style.top=(r.top-s.top+r.height/2)+'px';
+      c.style.background=COLORS[i%COLORS.length];
+      c.style.setProperty('--dx',(Math.random()*240-120)+'px');c.style.setProperty('--dy',(Math.random()*-200-40)+'px');
+      c.style.setProperty('--rot',(Math.random()*720-360)+'deg');
+      app.appendChild(c);setTimeout(function(x){return function(){x.remove()}}(c),950);
+    }
+  }
+  function xpFly(el){
+    if(!el)return;
+    var s=app.getBoundingClientRect(),r=el.getBoundingClientRect();
+    var f=document.createElement('span');f.className='xp-fly';f.setAttribute('aria-hidden','true');f.textContent='+'+XP_PER+' XP';
+    f.style.left=Math.max(0,r.right-s.left-90)+'px';f.style.top=(r.top-s.top)+'px';
+    app.appendChild(f);setTimeout(function(){f.remove()},750);
+  }
+
+  /* ---------- Progression ---------- */
+  function unlocked(i){return i===0||!!S.done[THEMES[i-1].id];}
+  function totalStars(){return THEMES.reduce(function(a,t){return a+(S.stars[t.id]||0);},0);}
+  function streak(){
+    var set={};S.days.forEach(function(d){set[d]=1;});
+    var d=today();if(!set[d])d=shiftDay(d,-1);
+    var n=0;while(set[d]){n++;d=shiftDay(d,-1);}
+    return n;
+  }
+  function weekDays(){
+    var now=new Date(),dow=(now.getDay()+6)%7,start=dayStr(new Date(now.getFullYear(),now.getMonth(),now.getDate()-dow)),out=[];
+    for(var i=0;i<7;i++){var d=shiftDay(start,i);out.push(S.days.indexOf(d)>=0);}
+    return out;
+  }
+  function dailyXp(){return S.dxp.d===today()?S.dxp.xp:0;}
+  var justUnlocked=-1,homeSit='accueil';
+
+  /* ---------- Barre commune des modes ---------- */
+  function headHTML(pct,label){
+    return '<div class="statusbar"></div><div class="game-head">'
+      +'<button class="icon-btn" type="button" data-quit aria-label="Quitter le niveau">'+icon('i-x')+'</button>'
+      +'<div class="prog" role="progressbar" aria-label="'+esc(label)+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(pct)+'"><i style="width:'+pct+'%"></i></div>'
+      +'<span class="chip xp" aria-label="XP gagnés dans ce niveau">'+icon('i-bolt','fill')+'<span class="xpv">'+(L?L.xp:0)+'</span></span></div>';
+  }
+  function bindQuit(){var q=app.querySelector('[data-quit]');if(q)q.addEventListener('click',function(){homeSit='aurevoir';L=null;renderHome();});}
+  function setProg(pct,now,max){var p=app.querySelector('.prog');if(!p)return;p.querySelector('i').style.width=pct+'%';p.setAttribute('aria-valuenow',Math.round(pct));if(now!=null)p.setAttribute('aria-valuetext',now+' sur '+max);}
+
+  /* ======================================================================
+     ÉCRAN 0 — Premier lancement / réglages
+     ====================================================================== */
+  function renderOnb(isSettings){
+    var draft={name:S.name,g:S.g,guide:S.guide||'f'};
+    app.className='screen onb';
+    app.innerHTML='<div class="statusbar"></div><div class="scr-body">'
+      +'<div class="logo" style="justify-content:center"><span class="bubble-ic" aria-hidden="true">é</span><h1 style="font:inherit;margin:0">Ti-koz<span class="acc">é</span></h1></div>'
+      +'<div class="say" style="margin-top:12px"><div class="guide" data-who="'+draft.guide+'" data-expr="neutral" data-follow></div><div class="bubble"></div></div>'
+      +'<label class="field-l" for="onb-name">Ton prénom</label>'
+      +'<input class="name-in" id="onb-name" maxlength="20" autocomplete="given-name" spellcheck="false" aria-describedby="onb-help">'
+      +'<span class="field-l" id="lbl-g">Je suis</span>'
+      +'<div class="seg2" role="group" aria-labelledby="lbl-g" data-set="g">'
+        +'<button class="pick" type="button" aria-pressed="false" data-v="f">une femme</button>'
+        +'<button class="pick" type="button" aria-pressed="false" data-v="m">un homme</button></div>'
+      +'<span class="field-l" id="lbl-gd">Mon guide</span>'
+      +'<div class="seg2" role="group" aria-labelledby="lbl-gd" data-set="guide">'
+        +'<button class="pick" type="button" aria-pressed="false" data-v="f" aria-label="Mamie"><span class="guide" data-who="f" data-expr="neutral"></span><span class="nm">Mamie</span></button>'
+        +'<button class="pick" type="button" aria-pressed="false" data-v="m" aria-label="Papi"><span class="guide" data-who="m" data-expr="neutral"></span><span class="nm">Papi</span></button></div>'
+      +'<p class="count" id="onb-help" style="margin-top:var(--s-3)">Ton prénom (1 à 20 caractères) et « je suis » sont nécessaires pour commencer.</p>'
+      +'</div>'
+      +(isSettings
+        ?'<div class="scr-foot swipe-row"><button class="btn ghost" type="button" data-cancel>Annuler</button><button class="btn" type="button" data-go>Enregistrer</button></div>'
+        :'<div class="scr-foot"><button class="btn" type="button" data-go>C\'est parti !</button></div>');
+    mountGuides();
+    var inp=app.querySelector('#onb-name'),go=app.querySelector('[data-go]'),bubble=app.querySelector('.say .bubble'),help=app.querySelector('#onb-help'),tt;
+    var follow=function(){return app.querySelector('.guide[data-follow]');};
+    inp.value=draft.name;
+    var rep=pickRep('accueil');
+    function greet(){
+      var keep=S.name,keepG=S.guide,keepGender=S.g;S.name=draft.name.trim();S.guide=draft.guide;S.g=draft.g;
+      if(rep){
+        /* la réplique d'accueil suit le guide choisi */
+        var who=draft.guide==='m'?'homme':'femme';
+        if(rep.guide&&rep.guide!=='les-deux'&&rep.guide!==who)rep=pickRep('accueil');
+      }
+      if(rep)speak(bubble,rep.cr,voiceFr(rep));else bubble.classList.add('hide');
+      S.name=keep;S.guide=keepG;S.g=keepGender;
+    }
+    function valid(){var n=draft.name.trim();return n.length>=1&&n.length<=20&&(draft.g==='f'||draft.g==='m');}
+    function sync(){
+      app.querySelectorAll('.seg2').forEach(function(set){set.querySelectorAll('.pick').forEach(function(p){p.setAttribute('aria-pressed',draft[set.dataset.set]===p.dataset.v?'true':'false');});});
+      go.disabled=!valid();
+      help.hidden=valid();
+    }
+    greet();sync();
+    inp.addEventListener('input',function(){
+      var wasEmpty=!draft.name.trim();
+      draft.name=inp.value.slice(0,20);
+      if(wasEmpty!==!draft.name.trim())greet();
+      else{var keep=S.name;S.name=draft.name.trim();refreshNames();S.name=keep;}
+      sync();clearTimeout(tt);tt=setTimeout(function(){act(follow(),'talk')},400);
+    });
+    app.querySelectorAll('.seg2').forEach(function(set){set.querySelectorAll('.pick').forEach(function(p){p.addEventListener('click',function(){
+      draft[set.dataset.set]=p.dataset.v;
+      if(set.dataset.set==='guide'){
+        var fg=follow();fg.dataset.who=p.dataset.v;renderGuide(fg);
+        var pg=p.querySelector('.guide');act(pg,'joy');setTimeout(function(){pg.dataset.expr='neutral'},1500);
+      }
+      sync();greet();act(follow(),'talk');
+    });});});
+    go.addEventListener('click',function(){
+      if(!valid())return;
+      S.name=draft.name.trim().slice(0,20);S.g=draft.g;S.guide=draft.guide;save();
+      homeSit='accueil';renderHome();
+    });
+    var cancel=app.querySelector('[data-cancel]');
+    if(cancel)cancel.addEventListener('click',function(){renderHome();});
+    act(follow(),'talk');
+    if(!isSettings)setTimeout(function(){try{inp.focus({preventScroll:true});}catch(e){}},50);
+  }
+
+  /* ======================================================================
+     ÉCRAN 1 — Accueil
+     ====================================================================== */
+  function tabbar(on){
+    return '<nav class="tabbar" aria-label="Navigation">'
+      +'<button class="tab'+(on==='home'?' on':'')+'" type="button" data-tab="home"'+(on==='home'?' aria-current="page"':'')+'>'+icon('i-map')+'Parcours</button>'
+      +'<button class="tab'+(on==='lex'?' on':'')+'" type="button" data-tab="lex"'+(on==='lex'?' aria-current="page"':'')+'>'+icon('i-book')+'Lexique</button>'
+      +'<button class="tab" type="button" data-tab="set">'+icon('i-gear')+'Réglages</button></nav>';
+  }
+  function bindTabs(){app.querySelectorAll('[data-tab]').forEach(function(b){b.addEventListener('click',function(){
+    var t=b.dataset.tab;if(t==='home'){homeSit='accueil';renderHome();}else if(t==='lex')renderLex();else renderOnb(true);
+  });});}
+  /* Recentre un niveau dans .path, seulement s'il est hors champ */
+  function revealInPath(li){
+    var p=li&&li.parentNode;if(!p)return;
+    var top=li.offsetTop,bot=top+li.offsetHeight;
+    if(top<p.scrollTop||bot>p.scrollTop+p.clientHeight)p.scrollTop=Math.max(0,top-(p.clientHeight-li.offsetHeight)/2);
+  }
+  function starsHTML(n){var h='<span class="stars" aria-label="'+n+' étoile'+(n>1?'s':'')+' sur 3">';for(var i=0;i<3;i++)h+=icon('i-star','fill '+(i<n?'st-on':'st-off'));return h+'</span>';}
+  function renderHome(){
+    app.className='screen';
+    var st=streak(),dx=dailyXp(),wk=weekDays(),nWk=wk.filter(Boolean).length,ts=totalStars();
+    var cur=-1;for(var i=0;i<THEMES.length;i++){if(unlocked(i)&&!S.done[THEMES[i].id]){cur=i;break;}}
+    var off=(163.4*(1-Math.min(1,dx/DAILY_GOAL))).toFixed(1);
+    var h='<div class="statusbar"></div><div class="home-top">'
+      +'<div class="logo"><span class="bubble-ic" aria-hidden="true">é</span><h1 style="font:inherit;margin:0">Ti-koz<span class="acc">é</span></h1></div>'
+      +'<div class="chips"><span class="chip flame" aria-label="Série de '+st+' jour'+(st>1?'s':'')+'">'+icon('i-flame','fill')+st+'</span>'
+      +'<span class="chip xp" aria-label="'+S.xp+' XP">'+icon('i-bolt','fill')+S.xp+'</span></div></div>'
+      +'<div class="scr-body">'
+      +'<div class="say" style="margin-top:0">'+guideHTML()+'<div class="bubble"></div></div>'
+      +'<div class="daily"><div class="ring" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(27,20,17,.18)" stroke-width="8"/><circle cx="32" cy="32" r="26" fill="none" stroke="#1B1411" stroke-width="8" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="'+off+'"/></svg><b>'+Math.min(dx,DAILY_GOAL)+'/'+DAILY_GOAL+'</b></div>'
+      +'<div><h3>Objectif du jour</h3><p>'+(dx>=DAILY_GOAL?'Objectif atteint':'Encore '+(DAILY_GOAL-dx)+' XP')+'</p></div>'
+      +'<div class="week" role="img" aria-label="'+nWk+' jour'+(nWk>1?'s':'')+' sur 7 cette semaine">'+wk.map(function(b){return '<i'+(b?' class="on"':'')+'></i>';}).join('')+'</div></div>'
+      +'<div class="sec-title"><h2 style="font:inherit;margin:0">Parcours</h2><small>'+icon('i-star','fill st-on').replace('class="ic','style="width:14px;height:14px;vertical-align:-2px" class="ic')+' '+ts+' / '+(THEMES.length*3)+' étoiles</small></div>'
+      +'<ol class="path">';
+    THEMES.forEach(function(t,i){
+      var n=DATA.filter(function(e){return e.theme===t.id&&e.type!=='replique';}).length;
+      var done=!!S.done[t.id],open=unlocked(i),locked=!open,isCur=i===cur,unl=i===justUnlocked;
+      var cls='lvl'+(locked&&!unl?' locked':'')+(isCur?' current':'')+(unl?' unlocking locked':'');
+      var meta=done?starsHTML(S.stars[t.id]||1)+'Terminé · Rejouer':(open?n+' mots · Toucher pour jouer':'Verrouillé');
+      h+='<li class="'+cls+'" data-lvl="'+i+'" role="button" tabindex="'+(open?'0':'-1')+'" aria-disabled="'+(open?'false':'true')+'" aria-label="Niveau '+(i+1)+' : '+esc(t.name)+(locked?', verrouillé':(done?', terminé, '+(S.stars[t.id]||1)+' étoile(s) sur 3':''))+'">'
+        +'<span class="node" style="background:'+t.c+'"><span class="num">'+(i+1)+'</span><svg class="vg" aria-hidden="true"><use href="#'+t.v+'"/></svg>'
+        +((locked||unl)?'<span class="lock">'+icon('i-lock')+'</span>':'')+'</span>'
+        +'<div class="lvl-card"><b>'+esc(t.name)+'</b><div class="lvl-meta">'+meta+'</div></div></li>';
+    });
+    h+='</ol></div>'+tabbar('home');
+    app.innerHTML=h;mountGuides();bindTabs();
+    var g=app.querySelector('.say .guide'),b=app.querySelector('.say .bubble');
+    if(!sayRep(b,homeSit))b.classList.add('hide');
+    homeSit='accueil';
+    act(g,'talk');
+    app.querySelectorAll('.lvl').forEach(function(li){
+      function go(){var i=+li.dataset.lvl;if(!unlocked(i))return;startLevel(i);}
+      li.addEventListener('click',go);
+      li.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go();}});
+    });
+    if(justUnlocked>=0){
+      var li=app.querySelector('.lvl[data-lvl="'+justUnlocked+'"]'),lk=li&&li.querySelector('.lock');
+      justUnlocked=-1;
+      if(li){
+        revealInPath(li);
+        setTimeout(function(){if(lk)retrigger(lk,'anim-shake');},250);
+        setTimeout(function(){if(lk){lk.remove();}li.classList.remove('locked');li.classList.add('current');retrigger(li.querySelector('.node'),'anim-pop');},600);
+      }
+    }else{
+      var c=app.querySelector('.lvl.current');if(c)revealInPath(c);
+    }
+  }
+
+  /* ======================================================================
+     NIVEAU — cartes puis session d'exercices
+     ====================================================================== */
+  var L=null;
+  function themeEntries(t){return DATA.filter(function(e){return e.theme===t&&e.type!=='replique';});}
+  function startLevel(i){
+    var t=THEMES[i],entries=themeEntries(t.id);
+    L={i:i,t:t,entries:entries,ci:0,seen:{},review:{},ex:null,ei:0,good:0,total:0,xp:0,miss:0};
+    renderCards();
+  }
+
+  /* ---------- Écran 2 — Cartes ---------- */
+  function renderCards(){
+    app.className='screen';
+    var n=L.entries.length;
+    app.innerHTML=headHTML(0,'Cartes du niveau')
+      +'<div class="scr-body"><span class="mode-tag" style="background:var(--c-ciel)">'+icon('i-flip')+'Cartes</span>'
+      +'<div class="say">'+guideHTML()+'<div class="bubble"></div></div>'
+      +'<div class="card-stage"></div></div>'
+      +'<div class="scr-foot swipe-row"><button class="btn ghost" type="button" data-know="0">À revoir</button><button class="btn" type="button" data-know="1">Je savais</button></div>';
+    mountGuides();bindQuit();
+    var b=app.querySelector('.say .bubble');
+    if(!sayRep(b,'debut'))b.classList.add('hide');
+    act(app.querySelector('.say .guide'),'talk');
+    app.querySelectorAll('[data-know]').forEach(function(btn){btn.addEventListener('click',function(){nextCard(btn.dataset.know==='1');});});
+    showCard();
+  }
+  function cardBack(e){
+    var cr=crOf(e),h='<div class="back-top">'+(hasIl(e)?plate(e):'')
+      +'<div style="min-width:0"><span class="lang">Kréyòl</span><span class="word" style="display:block;font-size:var(--fs-2xl)">'+esc(cr)+'</span></div></div>';
+    if(e.exemple_cr)h+='<div class="ex"><b>'+esc(e.exemple_cr)+'</b>'+(e.exemple_fr?'<span>'+esc(e.exemple_fr)+'</span>':'')+'</div>';
+    if(e.piege)h+='<div class="ex"><b style="font-size:var(--fs-sm)">Faux-ami : ne veut pas dire</b><span>« '+esc(e.piege)+' »</span></div>';
+    if(e.note)h+='<div class="ex"><b style="font-size:var(--fs-sm)">À savoir</b><span>'+esc(e.note)+'</span></div>';
+    if(e.variantes&&e.variantes.length)h+='<div class="ex"><b style="font-size:var(--fs-sm)">Se dit aussi : '+esc(e.variantes.join(', '))+'</b></div>';
+    return h;
+  }
+  function showCard(){
+    var e=L.entries[L.ci],n=L.entries.length,stage=app.querySelector('.card-stage'),fr=frOf(e);
+    setProg(L.ci/n*100,L.ci+1,n);
+    stage.style.transform='';stage.style.transition='';
+    stage.innerHTML='<button class="card3d" type="button" aria-label="Carte '+(L.ci+1)+' sur '+n+'. Retourner la carte">'
+      +'<div class="face front">'+(hasIl(e)?plate(e):'')
+      +'<span class="lang"'+(hasIl(e)?' style="margin-top:12px"':'')+'>Français</span>'
+      +'<span class="word'+(fr.length>26?' long':'')+'">'+esc(fr)+'</span>'
+      +'<span class="hint">'+icon('i-flip')+'Touchez pour voir en créole</span></div>'
+      +'<div class="face back" aria-hidden="true">'+cardBack(e)+'</div></button>';
+    var card=stage.querySelector('.card3d'),dragged=false,x0=null,dx=0;
+    card.addEventListener('click',function(){
+      if(dragged){dragged=false;return;}
+      card.classList.toggle('flipped');
+      var fl=card.classList.contains('flipped');
+      card.querySelector('.front').setAttribute('aria-hidden',fl?'true':'false');
+      card.querySelector('.back').setAttribute('aria-hidden',fl?'false':'true');
+      if(fl&&!L.seen[L.ci]){
+        L.seen[L.ci]=1;
+        speak(app.querySelector('.say .bubble'),crOf(e),null);
+        act(app.querySelector('.say .guide'),'talk');
+      }
+    });
+    /* Glisser : droite = « Je savais », gauche = « À revoir » (rotation ±8°) */
+    card.addEventListener('pointerdown',function(ev){x0=ev.clientX;dx=0;dragged=false;});
+    card.addEventListener('pointermove',function(ev){
+      if(x0===null)return;dx=ev.clientX-x0;
+      if(Math.abs(dx)>8){dragged=true;if(!reduced){var r=Math.max(-8,Math.min(8,dx/12));stage.style.transition='none';stage.style.transform='translateX('+dx+'px) rotate('+r+'deg)';}}
+    });
+    function end(){
+      if(x0===null)return;x0=null;
+      stage.style.transition='transform var(--dur-mid) var(--ease-out)';
+      if(Math.abs(dx)>90){nextCard(dx>0);}else{stage.style.transform='';}
+      setTimeout(function(){dragged=false;},0);
+    }
+    card.addEventListener('pointerup',end);card.addEventListener('pointercancel',end);card.addEventListener('pointerleave',end);
+  }
+  function nextCard(knew){
+    var e=L.entries[L.ci];
+    if(!knew)L.review[e.id]=1;
+    L.ci++;
+    if(L.ci>=L.entries.length){L.ex=buildSession();L.ei=0;renderExercise();return;}
+    showCard();
+  }
+
+  /* ---------- Composition de la session (~10 exercices) ---------- */
+  function buildSession(){
+    var all=L.entries;
+    var prior=function(arr){var r=shuffle(arr);return r.filter(function(e){return L.review[e.id];}).concat(r.filter(function(e){return !L.review[e.id];}));};
+    var prov=all.filter(function(e){return e.type==='proverbe'&&e.mot_cache&&e.cr.indexOf(e.mot_cache)>=0;});
+    var fa=all.filter(function(e){return e.type==='faux-ami'&&e.piege;});
+    var specialKind=prov.length?'prov':(fa.length?'vf':null),specials=[];
+    if(specialKind)specials=prior(specialKind==='prov'?prov:fa).slice(0,4);
+    var qpool=all.filter(function(e){return e.type!=='proverbe';});
+    if(!qpool.length)qpool=all;
+    var used={};specials.forEach(function(e){used[e.id]=1;});
+    var qOrder=prior(qpool.filter(function(e){return !used[e.id];})).concat(prior(qpool.filter(function(e){return used[e.id];})));
+    var nQ=SESSION_LEN-1-specials.length,qs=[];
+    for(var i=0;i<nQ&&qOrder.length;i++)qs.push(qOrder[i%qOrder.length]);
+    var list=[],si=0,qi=0,dir=Math.random()<.5?0:1;
+    for(var k=0;k<SESSION_LEN-1;k++){
+      var wantSpecial=specials.length&&(k%2===1||qi>=qs.length)&&si<specials.length;
+      if(wantSpecial)list.push({kind:specialKind,e:specials[si++]});
+      else if(qi<qs.length){list.push({kind:'qcm',e:qs[qi++],dir:(dir++)%2});}
+      else if(si<specials.length)list.push({kind:specialKind,e:specials[si++]});
+    }
+    list.splice(Math.min(4,list.length),0,{kind:'pairs'});
+    return list;
+  }
+
+  /* ---------- Exercices : enveloppe commune ---------- */
+  function exPct(){return L.ei/L.ex.length*100;}
+  function renderExercise(){
+    if(L.ei>=L.ex.length){finishLevel();return;}
+    var x=L.ex[L.ei];
+    app.className='screen';
+    app.innerHTML=headHTML(exPct(),'Exercices du niveau')
+      +'<div class="scr-body"><div class="say">'+guideHTML()+'<div class="bubble"></div></div><div class="ex-body"></div></div>'
+      +'<div class="feedback" role="status" aria-live="polite"><div class="fb-title"><span class="fb-badge">'+icon('i-check')+'</span><span class="fb-h"></span></div><p class="fb-text"></p><button class="btn" type="button" data-next>Continuer</button></div>';
+    mountGuides();bindQuit();
+    setProg(exPct(),L.ei+1,L.ex.length);
+    var fb=app.querySelector('.feedback');
+    fb.setAttribute('inert','');
+    fb.querySelector('[data-next]').addEventListener('click',function(){L.ei++;renderExercise();});
+    ({qcm:exQcm,pairs:exPairs,vf:exVf,prov:exProv})[x.kind](x);
+    var body=app.querySelector('.scr-body');if(body)body.scrollTop=0;
+  }
+  function G(){return app.querySelector('.say .guide');}
+  function B(){return app.querySelector('.say .bubble');}
+  function showFeedback(ok,title,html,delay){
+    var fb=app.querySelector('.feedback');
+    fb.className='feedback '+(ok?'ok':'ko');
+    fb.querySelector('.fb-h').textContent=title;
+    fb.querySelector('.fb-badge use').setAttribute('href',ok?'#i-check':'#i-x');
+    fb.querySelector('.fb-text').innerHTML=html;
+    setTimeout(function(){fb.removeAttribute('inert');fb.classList.add('show');
+      setTimeout(function(){try{fb.querySelector('[data-next]').focus({preventScroll:true});}catch(e){}},300);},delay);
+  }
+  /* Bonne ou mauvaise réponse : comptage, guide, effets (barème de la charte) */
+  function scored(ok,fromEl){
+    L.total++;
+    setProg((L.ei+1)/L.ex.length*100,L.ei+1,L.ex.length);
+    var g=G(),b=B();
+    if(ok){
+      L.good++;L.xp+=XP_PER;L.miss=0;
+      var xv=app.querySelector('.xpv');if(xv)xv.textContent=L.xp;
+      confetti(fromEl,12);xpFly(app.querySelector('.game-head .chip.xp'));vib(15);
+      if(!sayRep(b,'bravo')){}
+      act(g,'joy');
+    }else{
+      L.miss++;vib([30,40,30]);
+      sayRep(b,L.miss>=2?'encourage':'erreur')||sayRep(b,'erreur');
+      act(g,'nod');
+    }
+  }
+  function optHTML(letter,text,extraCls){
+    return '<button class="opt'+(extraCls||'')+'" type="button">'+(letter?'<span class="k">'+letter+'</span>':'')
+      +'<span class="tx">'+esc(text)+'</span>'+icon('i-check','st ok')+icon('i-x','st ko')+'</button>';
+  }
+  /* Choix multiples : verrouille, marque la réponse et la bonne */
+  function bindOpts(opts,rightIdx,onPick,fbFn){
+    var done=false;
+    opts.forEach(function(o,i){o.addEventListener('click',function(){
+      if(done)return;done=true;
+      var ok=i===rightIdx,right=opts[rightIdx];
+      opts.forEach(function(x){x.setAttribute('aria-disabled','true');});
+      var go=function(){
+        opts.forEach(function(x,j){if(x!==o&&j!==rightIdx)x.classList.add('is-dim');});
+        if(ok){o.classList.add('is-ok');retrigger(o,'anim-pop');}
+        else{o.classList.add('is-ko');retrigger(o,'anim-shake');right.classList.add('is-ok');retrigger(right,'anim-glow');}
+        o.setAttribute('aria-label',(ok?'Juste : ':'Faux : ')+o.textContent.trim());
+        scored(ok,o);
+        fbFn(ok);
+      };
+      if(onPick){onPick(o,i);setTimeout(go,200);}else go();
+    });});
+  }
+  function distinct(list,keyFn){var seen={},out=[];list.forEach(function(e){var k=norm(keyFn(e));if(k&&!seen[k]){seen[k]=1;out.push(e);}});return out;}
+  function distractors(target,keyFn,n){
+    var tk=norm(keyFn(target));
+    var same=L.entries.filter(function(e){return e!==target&&e.type===target.type&&norm(keyFn(e))!==tk;});
+    var other=L.entries.filter(function(e){return e!==target&&e.type!==target.type&&norm(keyFn(e))!==tk&&e.type!=='proverbe';});
+    return distinct(shuffle(same).concat(shuffle(other)),keyFn).slice(0,n);
+  }
+
+  /* ---------- Écran 3 — QCM ---------- */
+  function exQcm(x){
+    var e=x.e,toCr=x.dir===1;
+    var ask=toCr?frOf(e):crOf(e),keyFn=toCr?crOf:frOf;
+    var choices=shuffle([e].concat(distractors(e,keyFn,3)));
+    var right=choices.indexOf(e);
+    askQ(B(),toCr?'Comment dit-on <span class="kw">« '+esc(ask)+' »</span> en créole ?':'Que veut dire <span class="kw">« '+esc(ask)+' »</span> ?');
+    act(G(),'talk');
+    var body=app.querySelector('.ex-body');
+    body.innerHTML=(hasIl(e)?'<div class="q-img">'+plate(e)+'</div>':'')
+      +'<div class="opts">'+choices.map(function(c,i){return optHTML('ABCD'[i],keyFn(c));}).join('')+'</div>';
+    var opts=[].slice.call(body.querySelectorAll('.opt'));
+    bindOpts(opts,right,null,function(ok){
+      showFeedback(ok,ok?'Juste !':'Pas tout à fait',toCr?'<b>'+esc(ask)+'</b> se dit : '+esc(keyFn(e)):'<b>'+esc(ask)+'</b> veut dire : '+esc(keyFn(e)),ok?250:400);
+    });
+  }
+
+  /* ---------- Écran 4 — Paires ---------- */
+  function exPairs(){
+    var pool=L.entries.filter(function(e){return e.type!=='proverbe';});
+    var short=pool.filter(function(e){return frOf(e).length<=24&&crOf(e).length<=20;});
+    var src=shuffle(short.length>=5?short:pool),pick=[],sf={},sc={};
+    src.forEach(function(e){var a=norm(frOf(e)),c=norm(crOf(e));if(pick.length<5&&!sf[a]&&!sc[c]){sf[a]=sc[c]=1;pick.push(e);}});
+    var left=pick.map(function(e,i){return {t:frOf(e),p:i};});
+    var right=pick.map(function(e,i){return {t:crOf(e),p:i};});
+    for(var tries=0;tries<30;tries++){right=shuffle(right);if(right.every(function(r,i){return r.p!==i;})||right.length<2)break;}
+    askQ(B(),'Relie chaque mot à sa traduction.');act(G(),'talk');
+    var tile=function(o){return '<button class="tile" type="button" aria-pressed="false" data-p="'+o.p+'">'+esc(o.t)+'</button>';};
+    var body=app.querySelector('.ex-body');
+    body.innerHTML='<div class="pairs"><div class="col"><h4>Français</h4>'+left.map(tile).join('')+'</div><div class="col"><h4>Kréyòl</h4>'+right.map(tile).join('')+'</div></div>';
+    var PAL=['m1','m2','m3','m4','m5'],sel=null,mi=0,errs=0,g=G(),finished=false;
+    body.querySelectorAll('.tile').forEach(function(t){t.addEventListener('click',function(){
+      if(finished||t.classList.contains('matched')||t.classList.contains('m1')||t.classList.contains('m2')||t.classList.contains('m3')||t.classList.contains('m4')||t.classList.contains('m5'))return;
+      if(!sel){sel=t;t.classList.add('sel');t.setAttribute('aria-pressed','true');return;}
+      if(sel===t){t.classList.remove('sel');t.setAttribute('aria-pressed','false');sel=null;return;}
+      var a=sel,b=t;a.classList.remove('sel');a.setAttribute('aria-pressed','false');sel=null;
+      if(a.parentNode===b.parentNode){sel=b;b.classList.add('sel');b.setAttribute('aria-pressed','true');return;}
+      if(a.dataset.p===b.dataset.p){
+        var c=PAL[mi++%PAL.length];
+        [a,b].forEach(function(x){x.classList.add(c);retrigger(x,'anim-pop');x.insertAdjacentHTML('beforeend',icon('i-check'));x.setAttribute('aria-disabled','true');x.setAttribute('aria-label',x.textContent+' : relié');});
+        vib(15);act(g,'joy');relax(g,1500);
+        setTimeout(function(){a.classList.add('matched');b.classList.add('matched');},350);
+        if(mi===pick.length){
+          finished=true;
+          var ok=errs===0;
+          setTimeout(function(){
+            scored(ok,body.querySelector('.pairs'));
+            confetti(body.querySelector('.pairs'),24);act(g,'dance');
+            showFeedback(ok,ok?'Juste !':'Pas tout à fait',ok?'Toutes les paires sont reliées, sans erreur.':'Toutes les paires sont reliées, avec <b>'+errs+' erreur'+(errs>1?'s':'')+'</b>.',ok?250:400);
+          },500);
+        }
+      }else{
+        errs++;
+        [a,b].forEach(function(x){retrigger(x,'wrong');});vib([30,40,30]);act(g,'nod');relax(g,1500);
+        sayRep(B(),'erreur');
+        setTimeout(function(){a.classList.remove('wrong');b.classList.remove('wrong');},450);
+      }
+    });});
+  }
+
+  /* ---------- Écran 5 — Vrai ou faux-ami ? ---------- */
+  function exVf(x){
+    var e=x.e,real=frOf(e),trap=e.piege;
+    var choices=shuffle([{t:real,ok:true},{t:trap,ok:false}]),right=choices[0].ok?0:1;
+    askQ(B(),'Attention au piège : que veut dire ce mot ?');act(G(),'talk');
+    var body=app.querySelector('.ex-body');
+    body.innerHTML='<div class="fa-card"><span class="word">'+esc(crOf(e))+'</span><div class="eq">veut dire</div><span class="fr">« ? »</span></div>'
+      +'<div class="vf opts">'+choices.map(function(c){return optHTML('',c.t);}).join('')+'</div>';
+    var opts=[].slice.call(body.querySelectorAll('.opt'));
+    bindOpts(opts,right,function(o,i){body.querySelector('.fa-card .fr').textContent='« '+choices[i].t+' »';},function(ok){
+      showFeedback(ok,ok?'Juste !':'Pas tout à fait','C\'est un faux-ami : <b>'+esc(crOf(e))+'</b> veut dire « '+esc(real)+' », pas « '+esc(trap)+' ».',ok?250:400);
+    });
+  }
+
+  /* ---------- Écran 6 — Proverbe à compléter ---------- */
+  /* Casse de l'initiale alignée sur le mot caché, pour qu'elle ne trahisse pas la réponse */
+  function cap(w,like){var up=/^\p{Lu}/u.test(like);return (up?w.charAt(0).toUpperCase():w.charAt(0).toLowerCase())+w.slice(1);}
+  function exProv(x){
+    var e=x.e,hid=e.mot_cache;
+    var others=distinct(shuffle(DATA.filter(function(o){return o.type==='proverbe'&&o.mot_cache&&o!==e;})).map(function(o){return o.mot_cache;})
+      .concat(shuffle(DATA.filter(function(o){return o.type==='mot'&&!/\s/.test(o.cr);})).map(function(o){return o.cr;})),function(w){return w;})
+      .filter(function(w){return norm(w)!==norm(hid);}).slice(0,3).map(function(w){return cap(w,hid);});
+    var choices=shuffle([hid].concat(others)),right=choices.indexOf(hid);
+    askQ(B(),'Quel mot manque dans ce proverbe ?');act(G(),'talk');
+    var parts=e.cr.split(hid);
+    var body=app.querySelector('.ex-body');
+    body.innerHTML='<div class="prov"><span class="qm">'+icon('i-quote')+'</span><p>'
+      +parts.map(esc).join('<span class="gap" data-gap>?</span>')+'</p><small>Sens : '+esc(e.fr)+'</small></div>'
+      +'<div class="opts two" style="margin-top:var(--s-5)">'+choices.map(function(c){return optHTML('',c);}).join('')+'</div>';
+    var opts=[].slice.call(body.querySelectorAll('.opt'));
+    bindOpts(opts,right,function(o,i){body.querySelectorAll('[data-gap]').forEach(function(gp){gp.textContent=choices[i];});},function(ok){
+      body.querySelectorAll('[data-gap]').forEach(function(gp){gp.textContent=hid;});
+      showFeedback(ok,ok?'Juste !':'Pas tout à fait','Le proverbe complet : <b>'+esc(e.cr)+'</b>',ok?250:400);
+    });
+  }
+
+  /* ======================================================================
+     ÉCRAN 7 — Fin de niveau
+     ====================================================================== */
+  function finishLevel(){
+    var t=L.t,pct=L.total?L.good/L.total:0;
+    var stars=pct>=.9?3:(pct>=.7?2:1);
+    var firstTime=!Object.keys(S.done).length;
+    var wasDone=!!S.done[t.id];
+    S.done[t.id]=true;
+    S.stars[t.id]=Math.max(S.stars[t.id]||0,stars);
+    S.best[t.id]=Math.max(S.best[t.id]||0,Math.round(pct*100));
+    S.xp+=L.xp;
+    var d=today();if(S.dxp.d!==d)S.dxp={d:d,xp:0};S.dxp.xp+=L.xp;
+    if(S.days.indexOf(d)<0){S.days.push(d);S.days=S.days.slice(-60);}
+    if(!wasDone&&L.i+1<THEMES.length)justUnlocked=L.i+1;
+    save();
+    var gained=L.xp,st=streak(),next=L.i+1<THEMES.length?L.i+1:-1;
+    app.className='screen';
+    app.innerHTML='<div class="statusbar"></div><div class="scr-body"><div class="end">'
+      +'<div class="burst" aria-hidden="true"></div>'
+      +'<div class="big-stars" role="img" aria-label="'+stars+' étoile'+(stars>1?'s':'')+' sur 3">'
+        +[0,1,2].map(function(i){return '<span class="'+(i===1?'mid':'')+'">'+icon('i-star','fill '+(i<stars?'st-on':'st-off'))+'</span>';}).join('')+'</div>'
+      +'<h2>'+esc(t.name)+' · Terminé</h2>'
+      +guideHTML('joy')
+      +'<div class="bubble"></div>'
+      +'<div class="stats">'
+        +'<div class="stat" style="background:var(--c-ciel)">'+icon('i-bolt','fill')+'<b class="count-xp">+0</b><small>XP</small></div>'
+        +'<div class="stat" style="background:var(--c-canne)">'+icon('i-target')+'<b>'+Math.round(pct*100)+' %</b><small>Justes</small></div>'
+        +'<div class="stat" style="background:var(--c-flamboyant)">'+icon('i-flame','fill')+'<b>'+st+'</b><small>Jour'+(st>1?'s':'')+'</small></div></div>'
+      +(firstTime?'<p class="count" style="margin:0">1 étoile = niveau terminé · 2 étoiles = 70 % de réponses justes · 3 étoiles = 90 %</p>':'')
+      +'</div></div>'
+      +'<div class="scr-foot" style="display:grid;gap:14px;padding-top:8px">'
+        +(next>=0?'<button class="btn" type="button" data-next-lvl>Niveau suivant</button>':'<button class="btn" type="button" data-home>Retour au parcours</button>')
+        +'<div class="swipe-row">'+'<button class="btn ghost" type="button" data-replay>Rejouer</button>'
+        +(next>=0?'<button class="btn ghost" type="button" data-home>Parcours</button>':'')+'</div>'
+      +'</div>';
+    mountGuides();
+    var g=app.querySelector('.end .guide'),b=app.querySelector('.end .bubble');
+    if(!sayRep(b,'fin'))b.classList.add('hide');
+    app.querySelectorAll('.big-stars span').forEach(function(s){retrigger(s,'in');});
+    var cx=app.querySelector('.count-xp'),t0=null;
+    if(reduced){cx.textContent='+'+gained;}
+    else{var step=function(ts){if(!t0)t0=ts;var k=Math.min(1,(ts-t0)/800);cx.textContent='+'+Math.round(gained*k);if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+    setTimeout(function(){confetti(app.querySelector('.big-stars'),30);},300);
+    act(g,'dance');
+    var li=L.i;
+    app.querySelectorAll('[data-home]').forEach(function(x){x.addEventListener('click',function(){L=null;homeSit='accueil';renderHome();});});
+    var nx=app.querySelector('[data-next-lvl]');if(nx)nx.addEventListener('click',function(){justUnlocked=-1;startLevel(next);});
+    app.querySelector('[data-replay]').addEventListener('click',function(){startLevel(li);});
+  }
+
+  /* ======================================================================
+     ÉCRAN 8 — Lexique
+     ====================================================================== */
+  var LEX=DATA.filter(function(e){return e.type!=='replique';});
+  var lexDir='fr';
+  function themeIndex(id){for(var i=0;i<THEMES.length;i++)if(THEMES[i].id===id)return i;return -1;}
+  function hl(s,q){
+    var ns=norm(s),nq=norm(q),i=nq?ns.indexOf(nq):-1;
+    if(i<0||ns.length!==s.length)return esc(s);
+    return esc(s.slice(0,i))+'<mark>'+esc(s.slice(i,i+nq.length))+'</mark>'+esc(s.slice(i+nq.length));
+  }
+  function renderLex(){
+    app.className='screen';
+    app.innerHTML='<div class="statusbar"></div>'
+      +'<div class="home-top"><h2 style="font-size:var(--fs-2xl)">Lexique</h2><span class="chip">'+icon('i-book')+LEX.length+' mots</span></div>'
+      +'<div class="scr-body">'
+      +'<label class="search">'+icon('i-search')+'<input type="search" aria-label="Rechercher un mot, en français ou en créole" placeholder="Chercher un mot" autocomplete="off" spellcheck="false"></label>'
+      +'<div class="dir" role="group" aria-label="Langue affichée en premier">'
+        +'<button type="button" aria-pressed="'+(lexDir==='fr')+'" data-dir="fr">Français'+icon('i-swap')+'Créole</button>'
+        +'<button type="button" aria-pressed="'+(lexDir==='kr')+'" data-dir="kr">Créole'+icon('i-swap')+'Français</button></div>'
+      +'<p class="count" aria-live="polite"></p><ul class="results"></ul></div>'+tabbar('lex');
+    bindTabs();
+    var inp=app.querySelector('.search input'),ul=app.querySelector('.results'),cnt=app.querySelector('.count');
+    function fields(e){return [e.fr,e.fr_f,e.cr,e.cr_f].concat(e.variantes||[]).filter(Boolean);}
+    function render(){
+      var q=inp.value.trim(),nq=norm(q);
+      var r=LEX.map(function(e){
+        if(!nq)return {e:e,s:0};
+        var fr=[e.fr,e.fr_f].filter(Boolean),cr=[e.cr,e.cr_f].concat(e.variantes||[]).filter(Boolean);
+        var main=lexDir==='fr'?fr:cr,other=lexDir==='fr'?cr:fr,best=-1;
+        main.forEach(function(s){var i=norm(s).indexOf(nq);if(i>=0)best=Math.max(best,i===0?4:3);});
+        other.forEach(function(s){var i=norm(s).indexOf(nq);if(i>=0)best=Math.max(best,i===0?2:1);});
+        return {e:e,s:best};
+      }).filter(function(o){return o.s>=0;});
+      if(nq)r.sort(function(a,b){return b.s-a.s;});
+      cnt.textContent=r.length+(r.length>1?' résultats':' résultat');
+      ul.innerHTML=r.map(function(o){
+        var e=o.e,ti=themeIndex(e.theme),t=THEMES[ti];
+        var fr=frOf(e),cr=crOf(e),big=lexDir==='fr'?fr:cr,small=lexDir==='fr'?cr:fr;
+        var lead=hasIl(e)?'<span class="plate"><svg aria-hidden="true"><use href="#il-'+esc(e.illustration)+'"/></svg></span>':'<i class="dot" aria-hidden="true" style="background:'+t.hex+'"></i>';
+        return '<li class="res">'+lead+'<div><b>'+hl(big,q)+'</b><span>'+hl(small,q)+'</span>'
+          +(e.variantes&&e.variantes.length?'<span>Se dit aussi : '+e.variantes.map(function(v){return hl(v,q);}).join(', ')+'</span>':'')
+          +(e.note?'<span>'+esc(e.note)+'</span>':'')
+          +'</div><span class="lv">niv. '+(ti+1)+'</span></li>';
+      }).join('')||'<li class="res"><div><b>Aucun mot trouvé</b><span>Essaie une autre orthographe : les accents ne comptent pas.</span></div></li>';
+    }
+    inp.addEventListener('input',render);
+    app.querySelectorAll('.dir button').forEach(function(b){b.addEventListener('click',function(){
+      lexDir=b.dataset.dir;app.querySelectorAll('.dir button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});render();
+    });});
+    render();
+  }
+
+  /* ---------- Démarrage ---------- */
+  if(S.name&&S.g)renderHome();else renderOnb(false);
+
+})();
+</script>
+</body></html>
