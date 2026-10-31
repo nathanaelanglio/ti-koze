@@ -357,6 +357,13 @@
 .rev-card.done:active{transform:none}
 .rev-card.done .rv-ic{background:var(--ok)}
 .rev-card.lec .rv-ic{background:var(--c-mango)}
+/* Cartes faites : repliées en pastilles, côte à côte quand il y en a deux */
+.rev-card.mini{padding:6px 10px;gap:8px;margin-top:var(--s-2)}
+.rev-card.mini .rv-ic{width:28px;height:28px;border-radius:9px}
+.rev-card.mini .rv-ic .ic{width:16px;height:16px}
+.rev-card.mini b{font-size:var(--fs-sm)}
+.mini-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:var(--s-3);flex:none}
+.mini-row .rev-card{margin-top:0}
 /* Jauge de maîtrise : 5 crans, le nombre est toujours écrit à côté */
 .gauge{display:inline-flex;align-items:center;gap:3px}
 .gauge i{width:10px;height:6px;border-radius:3px;border:1.5px solid var(--ink-2);box-sizing:border-box}
@@ -1797,9 +1804,9 @@ LECONS.forEach(function(l){DATA=DATA.concat(l.mots);});
         +'<span class="x2">×2 XP</span></button>';
     }
     var nx=nextRev(),sub=nx?'Prochaine révision '+whenLabel(nx.d)+' : '+(nx.n>1?nx.n+' mots':'1 mot'):(Object.keys(S.m).length?'':'Les mots que tu joues reviendront ici.');
-    return '<div class="rev-card done" role="status" aria-label="Rien à réviser aujourd\'hui.'+(sub?' '+esc(sub):'')+'">'
+    return '<div class="rev-card done mini" role="status" aria-label="Rien à réviser aujourd\'hui.'+(sub?' '+esc(sub):'')+'">'
       +'<span class="rv-ic">'+icon('i-check')+'</span>'
-      +'<span class="rv-t"><b>Rien à réviser aujourd\'hui</b>'+(sub?'<span class="rv-s">'+esc(sub)+'</span>':'')+'</span></div>';
+      +'<span class="rv-t"><b>'+(nx?'Révision '+whenLabel(nx.d):'Rien à réviser')+'</b></span></div>';
   }
   /* ---------- Leçon du jour : une nouvelle leçon par jour, dans l'ordre ---------- */
   function nextLesson(){for(var i=0;i<LECONS.length;i++)if(!S.lec[LECONS[i].n])return LECONS[i];return null;}
@@ -1813,10 +1820,15 @@ LECONS.forEach(function(l){DATA=DATA.concat(l.mots);});
         +'<span class="rv-t"><b>Leçon du jour · '+nx.n+'</b><span class="rv-s">'+nx.mots.length+' mots + 1 phrase type</span></span>'
         +'<span class="x2">'+nx.n+' / '+LECONS.length+'</span></button>';
     }
-    var sub=nx?'Leçon '+nx.n+' demain.':'Toutes les leçons sont faites. La suite arrive bientôt.';
-    return '<div class="rev-card done lec" role="status">'
+    var sub=nx?'Leçon '+nx.n+' demain':'Leçons finies';
+    return '<div class="rev-card done lec mini" role="status" aria-label="Leçon du jour faite. '+esc(sub)+'.">'
       +'<span class="rv-ic">'+icon('i-check')+'</span>'
-      +'<span class="rv-t"><b>Leçon du jour faite</b><span class="rv-s">'+esc(sub)+'</span></span></div>';
+      +'<span class="rv-t"><b>'+esc(sub)+'</b></span></div>';
+  }
+  /* Leçon et révision : deux cartes repliées se rangent sur une seule ligne */
+  function cardsHTML(){
+    var a=lecCardHTML(),b=revCardHTML(),m=function(h){return h.indexOf(' mini"')>0;};
+    return (a&&m(a)&&m(b))?'<div class="mini-row">'+a+b+'</div>':a+b;
   }
   function renderHome(){
     app.className='screen';
@@ -1832,8 +1844,7 @@ LECONS.forEach(function(l){DATA=DATA.concat(l.mots);});
       +'<div class="daily"><div class="ring" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(27,20,17,.18)" stroke-width="8"/><circle cx="32" cy="32" r="26" fill="none" stroke="#1B1411" stroke-width="8" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="'+off+'"/></svg><b>'+Math.min(dx,DAILY_GOAL)+'/'+DAILY_GOAL+'</b></div>'
       +'<div><h3>Objectif du jour</h3><p>'+(dx>=DAILY_GOAL?'Objectif atteint':'Encore '+(DAILY_GOAL-dx)+' XP')+'</p></div>'
       +'<div class="week" role="img" aria-label="'+nWk+' jour'+(nWk>1?'s':'')+' sur 7 cette semaine">'+wk.map(function(b){return '<i'+(b?' class="on"':'')+'></i>';}).join('')+'</div></div>'
-      +lecCardHTML()
-      +revCardHTML()
+      +cardsHTML()
       +'<div class="sec-title"><h2 style="font:inherit;margin:0">Parcours</h2><small>'+icon('i-star','fill st-on').replace('class="ic','style="width:14px;height:14px;vertical-align:-2px" class="ic')+' '+ts+' / '+(THEMES.length*3)+' étoiles</small></div>'
       +'<ol class="path">';
     THEMES.forEach(function(t,i){
